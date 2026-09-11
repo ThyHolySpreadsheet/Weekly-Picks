@@ -77,7 +77,7 @@
       <article><h2>CLTULLMANN</h2><ul><li data-pick="CHAR|+47.5">CHAR <span class="spread">+47.5</span></li><li data-pick="USM|+33.5">USM <span class="spread">+33.5</span></li><li data-pick="LAC|-9.5">LAC <span class="spread">-9.5</span></li><li data-pick="DAL|-2.5">DAL <span class="spread">-2.5</span></li></ul></article>
       <article><h2>mgmccray</h2><ul><li data-pick="OKLA|-5.5">OKLA <span class="spread">-5.5</span></li><li data-pick="PSU|-23.5">PSU <span class="spread">-23.5</span></li><li data-pick="BUF|-1.5">BUF <span class="spread">-1.5</span></li><li data-pick="DAL|-2.5">DAL <span class="spread">-2.5</span></li></ul></article>
       <article><h2>Dingram</h2><ul><li data-pick="TXAM|-14.5">TXAM <span class="spread">-14.5</span></li><li data-pick="MINN|+1.5">MINN <span class="spread">+1.5</span></li><li data-pick="BUFF|+10.5">BUFF <span class="spread">+10.5</span></li><li data-pick="LT|+35.5">LT <span class="spread">+35.5</span></li></ul></article>
-      <article><h2>PHILKOENIG824</h2><ul><li data-pick="LA|-3.5">LA <span class="spread">-3.5</span></li><li data-pick="MIZZ|-5.5">MIZZ <span class="spread">-5.5</span></li><li data-pick="ARK|+12.5">ARK <span class="spread">+12.5</span></li><li data-pick="DAL|-2.5">DAL <span class="spread">-2.5</span></li></ul></article>
+      <article><h2>PHILKOENIG824</h2><ul><li data-pick="LA|-3.5" data-included-in-starting-record="true">LA <span class="spread">-3.5</span></li><li data-pick="MIZZ|-5.5">MIZZ <span class="spread">-5.5</span></li><li data-pick="ARK|+12.5">ARK <span class="spread">+12.5</span></li><li data-pick="DAL|-2.5">DAL <span class="spread">-2.5</span></li></ul></article>
       <article><h2>RYANSDICKEY</h2><ul><li data-pick="RUTG|+3.5">RUTG <span class="spread">+3.5</span></li><li data-pick="MSST|-1.5">MSST <span class="spread">-1.5</span></li><li data-pick="PIT|-3.5" data-sport="college-football">PIT <span class="spread">-3.5</span></li><li data-pick="WAS|+5.5">WAS <span class="spread">+5.5</span></li></ul></article>
     </section></div>
     <section class="leaderboard" aria-labelledby="leaderboard-title">
@@ -139,13 +139,13 @@
     }
     const startingRecords = {
       JOHNREDCORN: [4, 0], CLTULLMANN: [4, 0], mgmccray: [4, 0], PHILKOENIG824: [4, 1],
-      Dingram: [3, 1], natescheps: [3, 1], HAYDENBERRY2: [3, 1], REID-MERLOTTI: [3, 1], TYLERKOENIG-961: [3, 1],
+      Dingram: [3, 1], natescheps: [3, 1], HAYDENBERRY2: [3, 1], 'REID-MERLOTTI': [3, 1], 'TYLERKOENIG-961': [3, 1],
       COREYGRAGG: [2, 2], CLAYTONCHIFOS: [2, 2], DDICKEY22: [2, 2], DiskoBets: [2, 2], RYANSDICKEY: [2, 2],
       JohnHower: [1, 3]
     };
     function updateLeaderboard() {
       const players = [...document.querySelectorAll('.grid article')].map(article => {
-        const results = [...article.querySelectorAll('li')].map(item => item.querySelector('.status')).filter(Boolean);
+        const results = [...article.querySelectorAll('li')].filter(item => item.dataset.includedInStartingRecord !== 'true').map(item => item.querySelector('.status')).filter(Boolean);
         const [startingWins, startingLosses] = startingRecords[article.querySelector('h2').textContent] || [0, 0];
         const wins = startingWins + results.filter(result => result.classList.contains('winning')).length;
         const losses = startingLosses + results.filter(result => result.classList.contains('losing')).length;
