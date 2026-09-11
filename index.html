@@ -22,6 +22,7 @@
     li { position: relative; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; min-height: 38px; padding: 2px 11px 21px; border-bottom: 1px solid var(--line); font-weight: 700; line-height: 1; background: var(--cell); color: #000; }
     li:last-child { border-bottom: 0; }
     .spread { color: #000; white-space: nowrap; }
+    .opponent { margin-left: 2px; color: var(--muted); font-size: .7em; font-weight: 700; white-space: nowrap; }
     .game-info { position: absolute; left: 11px; bottom: 11px; display: block; color: #3f3f3f; font-size: 8.4px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; }
     .status { position: absolute; left: 11px; bottom: 1px; display: block; font-size: 8px; font-weight: 700; letter-spacing: .03em; }
     li.incorrect { color: #b00020; text-decoration: line-through; text-decoration-thickness: 2px; }
@@ -32,13 +33,10 @@
       position: absolute;
       z-index: 1;
       left: 2%;
-      top: 50%;
+      top: calc(50% - 7px);
       width: 96%;
-      height: 5px;
-      border-radius: 999px;
-      background: rgba(196, 0, 28, .82);
-      box-shadow: 0 1px 0 rgba(128, 0, 18, .3);
-      transform: rotate(-7deg);
+      height: 14px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'%3E%3Cpath d='M1 9 C13 5 21 10 32 7 S53 8 64 5 S84 7 99 3' fill='none' stroke='%23bd001e' stroke-width='4.6' stroke-linecap='round' opacity='.78'/%3E%3Cpath d='M2 10 C15 7 25 11 37 8 S58 9 70 6 S88 8 98 4' fill='none' stroke='%23e00025' stroke-width='1.7' stroke-linecap='round' opacity='.72'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
       pointer-events: none;
     }
     .winning { color: #15732d; } .losing { color: #b00020; } .tied { color: #885b00; } .final { color: var(--muted); }
@@ -72,6 +70,7 @@
       article { border-bottom-width: 8px; }
       h2 { min-height: 35px; padding: 4px 2px; font-size: 8px; line-height: 1.1; overflow-wrap: anywhere; }
       li { min-height: 29px; padding: 2px 3px 14px; gap: 1px; font-size: 7px; line-height: 1; }
+      .opponent { margin-left: 1px; font-size: .62em; }
       .game-info { left: 3px; bottom: 8px; font-size: 4.8px; letter-spacing: 0; white-space: nowrap; }
       .status { left: 3px; bottom: 1px; font-size: 4px; letter-spacing: 0; white-space: nowrap; }
       .leaderboard { width: 40%; min-width: 0; margin-top: 12px; }
@@ -132,7 +131,7 @@
     <footer>Swipe the sheet sideways on iPhone · auto-refreshes every minute while open.</footer>
   </main>
   <script>
-    const aliases = { MIZZ:['MIZZ','MIZ'], OKLA:['OKLA','OU'], ALA:['ALA','BAMA'], MSST:['MSST'], TENN:['TENN'], ORE:['ORE'], TXAM:['TXAM','TAMU'], BUFF:['BUFF'], CHAR:['CHAR','CLT'], USM:['USM'], RUTG:['RUTG'], PSU:['PSU'], ISU:['ISU'], OSU:['OKST'], PIT:['PIT','PITT'], JAC:['JAC','JAX'], WAS:['WAS','WSH'], LA:['LAR'] };
+    const aliases = { MIZZ:['MIZZ','MIZ'], OKLA:['OKLA','OU'], ALA:['ALA','BAMA'], MSST:['MSST'], TENN:['TENN'], ORE:['ORE'], TXAM:['TXAM','TAMU','TA&M'], BUFF:['BUFF'], CHAR:['CHAR','CLT'], USM:['USM'], RUTG:['RUTG'], PSU:['PSU'], ISU:['ISU'], OSU:['OKST'], PIT:['PIT','PITT'], JAC:['JAC','JAX'], WAS:['WAS','WSH'], LA:['LAR'] };
     const abbrevs = key => aliases[key] || [key];
     const formatDate = date => { const parts = Object.fromEntries(new Intl.DateTimeFormat('en', { timeZone: 'America/Phoenix', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date).filter(p => p.type !== 'literal').map(p => [p.type, p.value])); return `${parts.year}${parts.month}${parts.day}`; };
     const scoreboardDates = () => { const now = new Date(), day = now.getDay(), thursday = new Date(now); thursday.setDate(now.getDate() - ((day - 4 + 7) % 7)); return Array.from({ length: 5 }, (_, offset) => { const date = new Date(thursday); date.setDate(thursday.getDate() + offset); return formatDate(date); }); };
@@ -144,6 +143,10 @@
       const competitors = event.competitions[0].competitors;
       const chosen = competitors.find(c => abbrevs(pick).includes(c.team.abbreviation));
       const other = competitors.find(c => c !== chosen);
+      const opponent = item.querySelector('.opponent') || document.createElement('small');
+      opponent.className = 'opponent';
+      opponent.textContent = `(v ${other.team.abbreviation})`;
+      item.insertBefore(opponent, item.querySelector('.spread'));
       const gameInfo = item.querySelector('.game-info') || document.createElement('small');
       const time = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Phoenix', weekday: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(event.date));
       const network = event.competitions[0].broadcasts?.flatMap(b => b.names || []).join(', ') || 'TV TBD';
