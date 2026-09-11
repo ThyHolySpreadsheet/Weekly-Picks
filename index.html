@@ -27,6 +27,19 @@
     li.incorrect .spread { color: #b00020; }
     .winning { color: #15732d; } .losing { color: #b00020; } .tied { color: #885b00; } .final { color: var(--muted); }
     footer { margin-top: 18px; text-align: center; color: var(--muted); font-size: 13px; }
+    @media (max-width: 600px) {
+      main { padding: 14px 4px 28px; }
+      header { margin: 0 0 10px; padding: 7px 5px; }
+      h1 { font-size: 23px; }
+      header p { font-size: 10px; }
+      .sheet-wrap { overflow: hidden; }
+      .grid { min-width: 0; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      article { border-bottom-width: 8px; }
+      h2 { min-height: 35px; padding: 4px 2px; font-size: 8px; line-height: 1.1; overflow-wrap: anywhere; }
+      li { min-height: 43px; padding: 5px 3px 14px; gap: 1px; font-size: 9px; line-height: 1; }
+      .status { left: 3px; bottom: 3px; font-size: 6px; letter-spacing: 0; white-space: nowrap; }
+      footer { margin-top: 10px; font-size: 10px; }
+    }
   </style>
 </head>
 <body>
