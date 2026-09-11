@@ -19,12 +19,14 @@
     article:nth-child(5n) { border-right: 0; }
     h2 { margin: 0; min-height: 44px; display: flex; align-items: center; justify-content: center; padding: 8px 7px; background: var(--header); border-bottom: 1px solid var(--line); color: #000; font-size: 14px; letter-spacing: .02em; text-align: center; }
     ul { margin: 0; padding: 0; list-style: none; }
-    li { position: relative; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; min-height: 56px; padding: 8px 11px 22px; border-bottom: 1px solid var(--line); font-weight: 700; background: var(--cell); color: #000; }
+    li { position: relative; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; min-height: 38px; padding: 2px 11px 21px; border-bottom: 1px solid var(--line); font-weight: 700; line-height: 1; background: var(--cell); color: #000; }
     li:last-child { border-bottom: 0; }
     .spread { color: #000; white-space: nowrap; }
-    .status { position: absolute; left: 11px; bottom: 5px; display: block; font-size: 10px; font-weight: 700; letter-spacing: .03em; }
+    .game-info { position: absolute; left: 11px; bottom: 11px; display: block; color: #3f3f3f; font-size: 8.4px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; }
+    .status { position: absolute; left: 11px; bottom: 1px; display: block; font-size: 8px; font-weight: 700; letter-spacing: .03em; }
     li.incorrect { color: #b00020; text-decoration: line-through; text-decoration-thickness: 2px; }
     li.incorrect .spread { color: #b00020; }
+    article.has-loss h2 { color: #b00020; text-decoration: line-through; text-decoration-thickness: 2px; }
     .winning { color: #15732d; } .losing { color: #b00020; } .tied { color: #885b00; } .final { color: var(--muted); }
     footer { margin-top: 18px; text-align: center; color: var(--muted); font-size: 13px; }
     @media (max-width: 600px) {
@@ -36,8 +38,9 @@
       .grid { min-width: 0; grid-template-columns: repeat(5, minmax(0, 1fr)); }
       article { border-bottom-width: 8px; }
       h2 { min-height: 35px; padding: 4px 2px; font-size: 8px; line-height: 1.1; overflow-wrap: anywhere; }
-      li { min-height: 43px; padding: 5px 3px 14px; gap: 1px; font-size: 9px; line-height: 1; }
-      .status { left: 3px; bottom: 3px; font-size: 6px; letter-spacing: 0; white-space: nowrap; }
+      li { min-height: 29px; padding: 2px 3px 14px; gap: 1px; font-size: 7px; line-height: 1; }
+      .game-info { left: 3px; bottom: 8px; font-size: 4.8px; letter-spacing: 0; white-space: nowrap; }
+      .status { left: 3px; bottom: 1px; font-size: 4px; letter-spacing: 0; white-space: nowrap; }
       footer { margin-top: 10px; font-size: 10px; }
     }
   </style>
@@ -56,34 +59,44 @@
       <article><h2>natescheps</h2><ul><li data-pick="OKLA|-5.5">OKLA <span class="spread">-5.5</span></li><li data-pick="UGA|-40.5">UGA <span class="spread">-40.5</span></li><li data-pick="ALA|-10.5">ALA <span class="spread">-10.5</span></li><li data-pick="OSU|+1.5">OSU <span class="spread">+1.5</span></li></ul></article>
       <article><h2>JohnHower</h2><ul><li data-pick="MIZZ|-5.5">MIZZ <span class="spread">-5.5</span></li><li data-pick="OKLA|-5.5">OKLA <span class="spread">-5.5</span></li><li data-pick="ORE|-22.5">ORE <span class="spread">-22.5</span></li><li data-pick="ISU|+13.5">ISU <span class="spread">+13.5</span></li></ul></article>
       <article><h2>DiskoBets</h2><ul><li data-pick="MIZZ|-5.5">MIZZ <span class="spread">-5.5</span></li><li data-pick="ILL|-5.5">ILL <span class="spread">-5.5</span></li><li data-pick="WASH|-26.5">WASH <span class="spread">-26.5</span></li><li data-pick="CHAR|+47.5">CHAR <span class="spread">+47.5</span></li></ul></article>
-      <article><h2>JOHNREDCORN</h2><ul><li data-pick="MIZZ|-5.5">MIZZ <span class="spread">-5.5</span></li><li data-pick="OKLA|-5.5">OKLA <span class="spread">-5.5</span></li><li data-pick="UGA|-40.5">UGA <span class="spread">-40.5</span></li><li data-pick="PIT|-3.5">PIT <span class="spread">-3.5</span></li></ul></article>
-      <article><h2>COREYGRAGG</h2><ul><li data-pick="OKLA|-5.5">OKLA <span class="spread">-5.5</span></li><li data-pick="JAC|-8.5">JAC <span class="spread">-8.5</span></li><li data-pick="DET|-6.5">DET <span class="spread">-6.5</span></li><li data-pick="PIT|-3.5">PIT <span class="spread">-3.5</span></li></ul></article>
+      <article><h2>JOHNREDCORN</h2><ul><li data-pick="MIZZ|-5.5">MIZZ <span class="spread">-5.5</span></li><li data-pick="OKLA|-5.5">OKLA <span class="spread">-5.5</span></li><li data-pick="UGA|-40.5">UGA <span class="spread">-40.5</span></li><li data-pick="PIT|-3.5" data-sport="college-football">PIT <span class="spread">-3.5</span></li></ul></article>
+      <article><h2>COREYGRAGG</h2><ul><li data-pick="OKLA|-5.5">OKLA <span class="spread">-5.5</span></li><li data-pick="JAC|-8.5">JAC <span class="spread">-8.5</span></li><li data-pick="DET|-6.5">DET <span class="spread">-6.5</span></li><li data-pick="PIT|-3.5" data-sport="nfl">PIT <span class="spread">-3.5</span></li></ul></article>
       <article><h2>REID-MERLOTTI</h2><ul><li data-pick="ALA|-10.5">ALA <span class="spread">-10.5</span></li><li data-pick="UNLV|-2.5">UNLV <span class="spread">-2.5</span></li><li data-pick="MEM|+8.5">MEM <span class="spread">+8.5</span></li><li data-pick="OSU|+1.5">OSU <span class="spread">+1.5</span></li></ul></article>
       <article><h2>CLTULLMANN</h2><ul><li data-pick="CHAR|+47.5">CHAR <span class="spread">+47.5</span></li><li data-pick="USM|+33.5">USM <span class="spread">+33.5</span></li><li data-pick="LAC|-9.5">LAC <span class="spread">-9.5</span></li><li data-pick="DAL|-2.5">DAL <span class="spread">-2.5</span></li></ul></article>
       <article><h2>mgmccray</h2><ul><li data-pick="OKLA|-5.5">OKLA <span class="spread">-5.5</span></li><li data-pick="PSU|-23.5">PSU <span class="spread">-23.5</span></li><li data-pick="BUF|-1.5">BUF <span class="spread">-1.5</span></li><li data-pick="DAL|-2.5">DAL <span class="spread">-2.5</span></li></ul></article>
       <article><h2>Dingram</h2><ul><li data-pick="TXAM|-14.5">TXAM <span class="spread">-14.5</span></li><li data-pick="MINN|+1.5">MINN <span class="spread">+1.5</span></li><li data-pick="BUFF|+10.5">BUFF <span class="spread">+10.5</span></li><li data-pick="LT|+35.5">LT <span class="spread">+35.5</span></li></ul></article>
       <article><h2>PHILKOENIG824</h2><ul><li data-pick="LA|-3.5">LA <span class="spread">-3.5</span></li><li data-pick="MIZZ|-5.5">MIZZ <span class="spread">-5.5</span></li><li data-pick="ARK|+12.5">ARK <span class="spread">+12.5</span></li><li data-pick="DAL|-2.5">DAL <span class="spread">-2.5</span></li></ul></article>
-      <article><h2>RYANSDICKEY</h2><ul><li data-pick="RUTG|+3.5">RUTG <span class="spread">+3.5</span></li><li data-pick="MSST|-1.5">MSST <span class="spread">-1.5</span></li><li data-pick="PIT|-3.5">PIT <span class="spread">-3.5</span></li><li data-pick="WAS|+5.5">WAS <span class="spread">+5.5</span></li></ul></article>
+      <article><h2>RYANSDICKEY</h2><ul><li data-pick="RUTG|+3.5">RUTG <span class="spread">+3.5</span></li><li data-pick="MSST|-1.5">MSST <span class="spread">-1.5</span></li><li data-pick="PIT|-3.5" data-sport="college-football">PIT <span class="spread">-3.5</span></li><li data-pick="WAS|+5.5">WAS <span class="spread">+5.5</span></li></ul></article>
     </section></div>
     <footer>Swipe the sheet sideways on iPhone · auto-refreshes every minute while open.</footer>
   </main>
   <script>
     const aliases = { MIZZ:['MIZZ','MIZ'], OKLA:['OKLA','OU'], ALA:['ALA','BAMA'], MSST:['MSST'], TENN:['TENN'], ORE:['ORE'], TXAM:['TXAM','TAMU'], BUFF:['BUFF'], CHAR:['CHAR','CLT'], USM:['USM'], RUTG:['RUTG'], PSU:['PSU'], ISU:['ISU'], OSU:['OKST'], PIT:['PIT','PITT'], JAC:['JAC','JAX'], WAS:['WAS','WSH'], LA:['LAR'] };
     const abbrevs = key => aliases[key] || [key];
-    const scoreboardDate = () => { const parts = Object.fromEntries(new Intl.DateTimeFormat('en', { timeZone: 'America/Phoenix', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts().filter(p => p.type !== 'literal').map(p => [p.type, p.value])); return `${parts.year}${parts.month}${parts.day}`; };
-    const source = sport => `https://site.api.espn.com/apis/site/v2/sports/football/${sport}/scoreboard?dates=${scoreboardDate()}&limit=500`;
+    const formatDate = date => { const parts = Object.fromEntries(new Intl.DateTimeFormat('en', { timeZone: 'America/Phoenix', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date).filter(p => p.type !== 'literal').map(p => [p.type, p.value])); return `${parts.year}${parts.month}${parts.day}`; };
+    const scoreboardDates = () => { const now = new Date(), day = now.getDay(), thursday = new Date(now); thursday.setDate(now.getDate() - ((day - 4 + 7) % 7)); return Array.from({ length: 5 }, (_, offset) => { const date = new Date(thursday); date.setDate(thursday.getDate() + offset); return formatDate(date); }); };
+    const source = (sport, date) => `https://site.api.espn.com/apis/site/v2/sports/football/${sport}/scoreboard?dates=${date}&limit=500`;
     function updatePick(item, events) {
       const [pick, lineText] = item.dataset.pick.split('|'), line = Number(lineText);
-      const event = events.find(e => e.competitions?.[0]?.competitors?.some(c => abbrevs(pick).includes(c.team.abbreviation)));
-      if (!event || !['in', 'post'].includes(event.status.type.state)) return;
+      const event = events.find(e => (!item.dataset.sport || e._sport === item.dataset.sport) && e.competitions?.[0]?.competitors?.some(c => abbrevs(pick).includes(c.team.abbreviation)));
+      if (!event) return;
       const competitors = event.competitions[0].competitors;
       const chosen = competitors.find(c => abbrevs(pick).includes(c.team.abbreviation));
       const other = competitors.find(c => c !== chosen);
+      const gameInfo = item.querySelector('.game-info') || document.createElement('small');
+      const time = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Phoenix', weekday: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(event.date));
+      const network = event.competitions[0].broadcasts?.flatMap(b => b.names || []).join(', ') || 'TV TBD';
+      gameInfo.className = 'game-info';
+      gameInfo.textContent = `${time} · ${network}`;
+      item.append(gameInfo);
+      if (!['in', 'post'].includes(event.status.type.state)) return;
       const score = Number(chosen.score), otherScore = Number(other.score), completed = event.status.type.completed;
       const adjusted = score + line - otherScore;
       const outcome = adjusted > 0 ? 'winning' : adjusted < 0 ? 'losing' : 'tied';
       const label = adjusted > 0 ? 'WINNING' : adjusted < 0 ? 'LOSING' : 'TIED';
       item.classList.toggle('incorrect', adjusted < 0);
+      const player = item.closest('article');
+      player.classList.toggle('has-loss', [...player.querySelectorAll('li.incorrect')].length > 0);
       const status = item.querySelector('.status') || document.createElement('small');
       status.className = `status ${outcome}${completed ? ' final' : ''}`;
       status.textContent = `${completed ? 'FINAL · ' : ''}${chosen.score}-${other.score} · ${label}`;
@@ -92,8 +105,8 @@
     async function refreshScores() {
       const message = document.querySelector('#update-message');
       try {
-        const responses = await Promise.all(['college-football', 'nfl'].map(s => fetch(source(s)).then(r => r.json())));
-        const events = responses.flatMap(r => r.events || []);
+        const responses = await Promise.all(['college-football', 'nfl'].flatMap(s => scoreboardDates().map(date => fetch(source(s, date)).then(r => r.json()).then(payload => ({ sport: s, payload })) )));
+        const events = responses.flatMap(({ sport, payload }) => (payload.events || []).map(event => ({ ...event, _sport: sport })));
         document.querySelectorAll('[data-pick]').forEach(item => updatePick(item, events));
         message.textContent = `Live scores updated ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · refreshes every minute`;
       } catch {
