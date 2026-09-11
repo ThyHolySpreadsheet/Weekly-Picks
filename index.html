@@ -28,6 +28,13 @@
     li.incorrect .spread { color: #b00020; }
     article.has-loss h2 { color: #b00020; text-decoration: line-through; text-decoration-thickness: 2px; }
     .winning { color: #15732d; } .losing { color: #b00020; } .tied { color: #885b00; } .final { color: var(--muted); }
+    .leaderboard { width: 40%; min-width: 348px; margin-top: 22px; border: 1px solid var(--line); background: #fff; }
+    .leaderboard h2 { min-height: 0; justify-content: flex-start; padding: 8px 11px; font-size: 15px; }
+    .leaderboard table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .leaderboard th, .leaderboard td { padding: 7px 10px; border-top: 1px solid var(--line); text-align: left; }
+    .leaderboard th { background: var(--cell); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+    .leaderboard td:first-child, .leaderboard td:nth-child(3), .leaderboard td:last-child { text-align: center; }
+    .leaderboard tbody tr:nth-child(even) { background: #f7faf5; }
     footer { margin-top: 18px; text-align: center; color: var(--muted); font-size: 13px; }
     @media (max-width: 600px) {
       main { padding: 14px 4px 28px; }
@@ -41,6 +48,11 @@
       li { min-height: 29px; padding: 2px 3px 14px; gap: 1px; font-size: 7px; line-height: 1; }
       .game-info { left: 3px; bottom: 8px; font-size: 4.8px; letter-spacing: 0; white-space: nowrap; }
       .status { left: 3px; bottom: 1px; font-size: 4px; letter-spacing: 0; white-space: nowrap; }
+      .leaderboard { width: 40%; min-width: 0; margin-top: 12px; }
+      .leaderboard h2 { padding: 6px; font-size: 11px; }
+      .leaderboard table { font-size: 10px; }
+      .leaderboard th, .leaderboard td { padding: 5px 4px; }
+      .leaderboard th { font-size: 8px; }
       footer { margin-top: 10px; font-size: 10px; }
     }
   </style>
@@ -68,6 +80,29 @@
       <article><h2>PHILKOENIG824</h2><ul><li data-pick="LA|-3.5">LA <span class="spread">-3.5</span></li><li data-pick="MIZZ|-5.5">MIZZ <span class="spread">-5.5</span></li><li data-pick="ARK|+12.5">ARK <span class="spread">+12.5</span></li><li data-pick="DAL|-2.5">DAL <span class="spread">-2.5</span></li></ul></article>
       <article><h2>RYANSDICKEY</h2><ul><li data-pick="RUTG|+3.5">RUTG <span class="spread">+3.5</span></li><li data-pick="MSST|-1.5">MSST <span class="spread">-1.5</span></li><li data-pick="PIT|-3.5" data-sport="college-football">PIT <span class="spread">-3.5</span></li><li data-pick="WAS|+5.5">WAS <span class="spread">+5.5</span></li></ul></article>
     </section></div>
+    <section class="leaderboard" aria-labelledby="leaderboard-title">
+      <h2 id="leaderboard-title">Leaderboard</h2>
+      <table>
+        <thead><tr><th>Rank</th><th>Player</th><th>Record</th></tr></thead>
+        <tbody id="leaderboard-body">
+          <tr><td>1</td><td>JOHNREDCORN</td><td>4-0</td></tr>
+          <tr><td>2</td><td>CLTULLMANN</td><td>4-0</td></tr>
+          <tr><td>3</td><td>mgmccray</td><td>4-0</td></tr>
+          <tr><td>4</td><td>PHILKOENIG824</td><td>4-1</td></tr>
+          <tr><td>5</td><td>Dingram</td><td>3-1</td></tr>
+          <tr><td>6</td><td>natescheps</td><td>3-1</td></tr>
+          <tr><td>7</td><td>HAYDENBERRY2</td><td>3-1</td></tr>
+          <tr><td>8</td><td>REID-MERLOTTI</td><td>3-1</td></tr>
+          <tr><td>9</td><td>TYLERKOENIG-961</td><td>3-1</td></tr>
+          <tr><td>10</td><td>COREYGRAGG</td><td>2-2</td></tr>
+          <tr><td>11</td><td>CLAYTONCHIFOS</td><td>2-2</td></tr>
+          <tr><td>T12</td><td>DDICKEY22</td><td>2-2</td></tr>
+          <tr><td>T12</td><td>DiskoBets</td><td>2-2</td></tr>
+          <tr><td>T12</td><td>RYANSDICKEY</td><td>2-2</td></tr>
+          <tr><td>15</td><td>JohnHower</td><td>1-3</td></tr>
+        </tbody>
+      </table>
+    </section>
     <footer>Swipe the sheet sideways on iPhone · auto-refreshes every minute while open.</footer>
   </main>
   <script>
@@ -102,17 +137,42 @@
       status.textContent = `${completed ? 'FINAL · ' : ''}${chosen.score}-${other.score} · ${label}`;
       item.append(status);
     }
+    const startingRecords = {
+      JOHNREDCORN: [4, 0], CLTULLMANN: [4, 0], mgmccray: [4, 0], PHILKOENIG824: [4, 1],
+      Dingram: [3, 1], natescheps: [3, 1], HAYDENBERRY2: [3, 1], REID-MERLOTTI: [3, 1], TYLERKOENIG-961: [3, 1],
+      COREYGRAGG: [2, 2], CLAYTONCHIFOS: [2, 2], DDICKEY22: [2, 2], DiskoBets: [2, 2], RYANSDICKEY: [2, 2],
+      JohnHower: [1, 3]
+    };
+    function updateLeaderboard() {
+      const players = [...document.querySelectorAll('.grid article')].map(article => {
+        const results = [...article.querySelectorAll('li')].map(item => item.querySelector('.status')).filter(Boolean);
+        const [startingWins, startingLosses] = startingRecords[article.querySelector('h2').textContent] || [0, 0];
+        const wins = startingWins + results.filter(result => result.classList.contains('winning')).length;
+        const losses = startingLosses + results.filter(result => result.classList.contains('losing')).length;
+        const games = wins + losses;
+        return { name: article.querySelector('h2').textContent, wins, losses, games, percentage: games ? wins / games : -1 };
+      }).sort((a, b) => b.percentage - a.percentage || b.games - a.games || a.name.localeCompare(b.name));
+      let previousKey = '', rank = 0;
+      document.querySelector('#leaderboard-body').innerHTML = players.map((player, index) => {
+        const key = `${player.percentage}-${player.games}`;
+        if (key !== previousKey) rank = index + 1;
+        previousKey = key;
+        return `<tr><td>${rank}</td><td>${player.name}</td><td>${player.wins}-${player.losses}</td></tr>`;
+      }).join('');
+    }
     async function refreshScores() {
       const message = document.querySelector('#update-message');
       try {
-        const responses = await Promise.all(['college-football', 'nfl'].flatMap(s => scoreboardDates().map(date => fetch(source(s, date)).then(r => r.json()).then(payload => ({ sport: s, payload })) )));
+        const responses = await Promise.all(['college-football', 'nfl'].flatMap(s => scoreboardDates().map(date => fetch(source(s, date)).then(r => r.json()).then(payload => ({ sport: s, payload })).catch(() => ({ sport: s, payload: { events: [] } })) )));
         const events = responses.flatMap(({ sport, payload }) => (payload.events || []).map(event => ({ ...event, _sport: sport })));
-        document.querySelectorAll('[data-pick]').forEach(item => updatePick(item, events));
+        document.querySelectorAll('[data-pick]').forEach(item => { try { updatePick(item, events); } catch (error) { console.error('Pick update failed:', error); } });
+        try { updateLeaderboard(); } catch (error) { console.error('Leaderboard update failed:', error); }
         message.textContent = `Live scores updated ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · refreshes every minute`;
       } catch {
         message.textContent = 'Live scores unavailable right now — pull down to try again.';
       }
     }
+    try { updateLeaderboard(); } catch (error) { console.error('Initial leaderboard update failed:', error); }
     refreshScores(); setInterval(refreshScores, 60000);
   </script>
 </body>
