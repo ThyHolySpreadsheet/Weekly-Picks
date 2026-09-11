@@ -28,12 +28,24 @@
     li.incorrect .spread { color: #b00020; }
     article.has-loss h2 { color: #b00020; text-decoration: line-through; text-decoration-thickness: 2px; }
     .winning { color: #15732d; } .losing { color: #b00020; } .tied { color: #885b00; } .final { color: var(--muted); }
-    .leaderboard { width: 40%; min-width: 348px; margin-top: 22px; border: 1px solid var(--line); background: #fff; }
+    .leaderboard { width: 40%; min-width: 348px; margin-top: 22px; overflow: hidden; border: 1px solid var(--line); background: #fff; }
     .leaderboard h2 { min-height: 0; justify-content: flex-start; padding: 8px 11px; font-size: 15px; }
-    .leaderboard table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .leaderboard table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 14px; }
     .leaderboard th, .leaderboard td { padding: 7px 10px; border-top: 1px solid var(--line); text-align: left; }
     .leaderboard th { background: var(--cell); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
     .leaderboard td:first-child, .leaderboard td:nth-child(3), .leaderboard td:last-child { text-align: center; }
+    .leaderboard th:first-child, .leaderboard td:first-child { width: 19%; }
+    .leaderboard th:nth-child(2), .leaderboard td:nth-child(2) {
+      width: 58%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: clip;
+    }
+    .leaderboard td:nth-child(2) {
+      font-size: clamp(4px, 1.4vw, 14px);
+      letter-spacing: -.04em;
+    }
+    .leaderboard th:last-child, .leaderboard td:last-child { width: 23%; }
     .leaderboard tbody tr:nth-child(even) { background: #f7faf5; }
     footer { margin-top: 18px; text-align: center; color: var(--muted); font-size: 13px; }
     @media (max-width: 600px) {
