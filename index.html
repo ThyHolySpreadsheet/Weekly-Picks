@@ -17,7 +17,7 @@
     .grid { display: grid; grid-template-columns: repeat(5, minmax(174px, 1fr)); gap: 0; min-width: 870px; width: 100%; }
     article { overflow: hidden; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--cell); }
     article:nth-child(5n) { border-right: 0; }
-    h2 { margin: 0; min-height: 44px; display: flex; align-items: center; justify-content: center; padding: 8px 7px; background: var(--header); border-bottom: 1px solid var(--line); color: #000; font-size: 14px; letter-spacing: .02em; text-align: center; }
+    h2 { position: relative; margin: 0; min-height: 44px; display: flex; align-items: center; justify-content: center; padding: 8px 7px; background: var(--header); border-bottom: 1px solid var(--line); color: #000; font-size: 14px; letter-spacing: .02em; text-align: center; }
     ul { margin: 0; padding: 0; list-style: none; }
     li { position: relative; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; min-height: 38px; padding: 2px 11px 21px; border-bottom: 1px solid var(--line); font-weight: 700; line-height: 1; background: var(--cell); color: #000; }
     li:last-child { border-bottom: 0; }
@@ -26,7 +26,21 @@
     .status { position: absolute; left: 11px; bottom: 1px; display: block; font-size: 8px; font-weight: 700; letter-spacing: .03em; }
     li.incorrect { color: #b00020; text-decoration: line-through; text-decoration-thickness: 2px; }
     li.incorrect .spread { color: #b00020; }
-    article.has-loss h2 { color: #b00020; text-decoration: line-through; text-decoration-thickness: 2px; }
+    article.has-loss h2 { color: #000; }
+    article.has-loss h2::after {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      left: 2%;
+      top: 50%;
+      width: 96%;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(196, 0, 28, .82);
+      box-shadow: 0 1px 0 rgba(128, 0, 18, .3);
+      transform: rotate(-7deg);
+      pointer-events: none;
+    }
     .winning { color: #15732d; } .losing { color: #b00020; } .tied { color: #885b00; } .final { color: var(--muted); }
     .leaderboard { width: 40%; min-width: 348px; margin-top: 22px; overflow: hidden; border: 1px solid var(--line); background: #fff; }
     .leaderboard h2 { min-height: 0; justify-content: flex-start; padding: 8px 11px; font-size: 15px; }
