@@ -48,6 +48,7 @@
     .critical-marker { margin-right: 1px; color: inherit; font-size: .85em; font-weight: 900; vertical-align: top; }
     .bottom-row { display: flex; align-items: flex-start; gap: 14px; margin-top: 22px; }
     .leaderboard { width: 40%; min-width: 348px; margin-top: 0; overflow: hidden; border: 1px solid var(--line); background: #fff; }
+    .payroll { width: 30%; min-width: 261px; }
     .leaderboard h2 { min-height: 0; justify-content: flex-start; padding: 8px 11px; font-size: 15px; }
     .leaderboard table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 14px; }
     .leaderboard th, .leaderboard td { padding: 7px 10px; border-top: 1px solid var(--line); text-align: left; }
@@ -91,6 +92,7 @@
       .status { left: 3px; bottom: 1px; font-size: 4px; letter-spacing: 0; white-space: nowrap; }
       .bottom-row { gap: 4px; margin-top: 12px; }
       .leaderboard { width: 40%; min-width: 0; }
+      .payroll { width: 30%; min-width: 0; }
       .leaderboard h2 { padding: 6px; font-size: 11px; }
       .leaderboard table { font-size: 10px; }
       .leaderboard th, .leaderboard td { padding: 5px 4px; }
@@ -153,6 +155,13 @@
           <tr><td>T12</td><td>RYANSDICKEY</td><td>2-2</td></tr>
           <tr><td>15</td><td>JohnHower</td><td>1-3</td></tr>
         </tbody>
+      </table>
+    </section>
+    <section class="leaderboard payroll" aria-labelledby="payroll-title">
+      <h2 id="payroll-title">ADP Payroll</h2>
+      <table>
+        <thead><tr><th>Rank</th><th>Player</th><th>Won</th></tr></thead>
+        <tbody id="payroll-body"></tbody>
       </table>
     </section>
     <section class="rollover" aria-labelledby="rollover-title">
@@ -281,6 +290,32 @@
         return `<tr><td>${rank}</td><td>${player.name}</td><td>${player.wins}-${player.losses}</td></tr>`;
       }).join('');
     }
+    const startingPayroll = { JOHNREDCORN: 250, mgmccray: 250, HAYDENBERRY2: 250, PHILKOENIG824: 250 };
+    function updatePayroll() {
+      const players = [...document.querySelectorAll('.grid article')].map(article => ({
+        article,
+        name: article.querySelector('h2').textContent,
+        won: startingPayroll[article.dataset.player] || 0
+      }));
+      const weekTwoWinners = players.filter(({ article }) => {
+        const picks = [...article.querySelectorAll('li')];
+        return picks.length === 4 && picks.every(item => {
+          const status = item.querySelector('.status');
+          return status?.classList.contains('final') && status.classList.contains('winning');
+        });
+      });
+      if (weekTwoWinners.length) {
+        const share = 1000 / weekTwoWinners.length;
+        weekTwoWinners.forEach(winner => { winner.won += share; });
+      }
+      players.sort((a, b) => b.won - a.won || a.name.localeCompare(b.name));
+      let previousWon = null, rank = 0;
+      document.querySelector('#payroll-body').innerHTML = players.map((player, index) => {
+        if (player.won !== previousWon) rank = index + 1;
+        previousWon = player.won;
+        return `<tr><td>${rank}</td><td>${player.name}</td><td>$${player.won.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</td></tr>`;
+      }).join('');
+    }
     function updateRolloverPath() {
       const summary = document.querySelector('#rollover-summary');
       const pathList = document.querySelector('#rollover-path');
@@ -360,13 +395,13 @@
         const responses = await Promise.all(['college-football', 'nfl'].flatMap(s => scoreboardDates().map(date => fetch(source(s, date)).then(r => r.json()).then(payload => ({ sport: s, payload })).catch(() => ({ sport: s, payload: { events: [] } })) )));
         const events = responses.flatMap(({ sport, payload }) => (payload.events || []).map(event => ({ ...event, _sport: sport })));
         document.querySelectorAll('[data-pick]').forEach(item => { try { updatePick(item, events); } catch (error) { console.error('Pick update failed:', error); } });
-        try { updateLeaderboard(); updateRolloverPath(); } catch (error) { console.error('Standings update failed:', error); }
+        try { updateLeaderboard(); updatePayroll(); updateRolloverPath(); } catch (error) { console.error('Standings update failed:', error); }
         if (message) message.textContent = `Live scores updated ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · refreshes every minute`;
       } catch {
         if (message) message.textContent = 'Live scores unavailable right now — pull down to try again.';
       }
     }
-    try { updateLeaderboard(); updateRolloverPath(); } catch (error) { console.error('Initial standings update failed:', error); }
+    try { updateLeaderboard(); updatePayroll(); updateRolloverPath(); } catch (error) { console.error('Initial standings update failed:', error); }
     refreshScores(); setInterval(refreshScores, 60000);
   </script>
 </body>
