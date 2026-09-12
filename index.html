@@ -49,6 +49,7 @@
     .bottom-row { display: flex; align-items: flex-start; gap: 14px; margin-top: 22px; }
     .leaderboard { width: 40%; min-width: 348px; margin-top: 0; overflow: hidden; border: 1px solid var(--line); background: #fff; }
     .payroll { width: 30%; min-width: 261px; }
+    .payroll-short { display: none; }
     .leaderboard h2 { min-height: 0; justify-content: flex-start; padding: 8px 11px; font-size: 15px; }
     .leaderboard table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 14px; }
     .leaderboard th, .leaderboard td { padding: 7px 10px; border-top: 1px solid var(--line); text-align: left; }
@@ -93,6 +94,12 @@
       .bottom-row { gap: 4px; margin-top: 12px; }
       .leaderboard { width: 40%; min-width: 0; }
       .payroll { width: 30%; min-width: 0; }
+      .payroll th, .payroll td { padding-left: 2px; padding-right: 2px; }
+      .payroll th:first-child, .payroll td:first-child { width: 20%; }
+      .payroll th:nth-child(2), .payroll td:nth-child(2) { width: 52%; }
+      .payroll th:last-child, .payroll td:last-child { width: 28%; }
+      .payroll-wide { display: none; }
+      .payroll-short { display: inline; }
       .leaderboard h2 { padding: 6px; font-size: 11px; }
       .leaderboard table { font-size: 10px; }
       .leaderboard th, .leaderboard td { padding: 5px 4px; }
@@ -160,7 +167,7 @@
     <section class="leaderboard payroll" aria-labelledby="payroll-title">
       <h2 id="payroll-title">ADP Payroll</h2>
       <table>
-        <thead><tr><th>Rank</th><th>Player</th><th>Won</th></tr></thead>
+        <thead><tr><th><span class="payroll-wide">Rank</span><span class="payroll-short">Rk</span></th><th><span class="payroll-wide">Player</span><span class="payroll-short">Name</span></th><th>Won</th></tr></thead>
         <tbody id="payroll-body"></tbody>
       </table>
     </section>
