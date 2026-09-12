@@ -195,7 +195,7 @@
     <footer>Swipe the sheet sideways on iPhone · auto-refreshes every minute while open.</footer>
   </main>
   <script>
-    const aliases = { MIZZ:['MIZZ','MIZ'], OKLA:['OKLA','OU'], ALA:['ALA','BAMA'], MSST:['MSST'], TENN:['TENN'], ORE:['ORE'], TXAM:['TXAM','TAMU','TA&M'], BUFF:['BUFF'], CHAR:['CHAR','CLT'], USM:['USM'], RUTG:['RUTG'], PSU:['PSU'], ISU:['ISU'], OSU:['OKST'], PIT:['PIT','PITT'], JAC:['JAC','JAX'], WAS:['WAS','WSH'], LA:['LAR'] };
+    const aliases = { MIZZ:['MIZZ','MIZ'], OKLA:['OKLA','OU'], ALA:['ALA','BAMA'], MSST:['MSST'], TENN:['TENN'], ORE:['ORE'], TXAM:['TXAM','TAMU','TA&M'], BUFF:['BUFF'], CHAR:['CHAR','CLT'], USM:['USM'], RUTG:['RUTG'], PSU:['PSU'], ISU:['ISU'], OSU:['OSU'], PIT:['PIT','PITT'], JAC:['JAC','JAX'], WAS:['WAS','WSH'], LA:['LAR'] };
     const abbrevs = key => aliases[key] || [key];
     const formatDate = date => { const parts = Object.fromEntries(new Intl.DateTimeFormat('en', { timeZone: 'America/Phoenix', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date).filter(p => p.type !== 'literal').map(p => [p.type, p.value])); return `${parts.year}${parts.month}${parts.day}`; };
     const scoreboardDates = () => { const now = new Date(), day = now.getDay(), thursday = new Date(now); thursday.setDate(now.getDate() - ((day - 4 + 7) % 7)); return Array.from({ length: 5 }, (_, offset) => { const date = new Date(thursday); date.setDate(thursday.getDate() + offset); return formatDate(date); }); };
@@ -310,6 +310,20 @@
       playerName.textContent = displayNames[username] || username;
       heading.replaceChildren(playerName);
     });
+    const nflPickKeys = new Set([
+      'TYLERKOENIG-961|CIN|-3.5',
+      'CLAYTONCHIFOS|BAL|-3.5', 'CLAYTONCHIFOS|PHI|-5.5', 'CLAYTONCHIFOS|DAL|-2.5',
+      'DDICKEY22|BUF|-1.5',
+      'COREYGRAGG|JAC|-8.5', 'COREYGRAGG|DET|-6.5', 'COREYGRAGG|PIT|-3.5',
+      'CLTULLMANN|LAC|-9.5', 'CLTULLMANN|DAL|-2.5',
+      'mgmccray|BUF|-1.5', 'mgmccray|DAL|-2.5',
+      'Dingram|MINN|+1.5',
+      'PHILKOENIG824|LA|-3.5', 'PHILKOENIG824|DAL|-2.5',
+      'RYANSDICKEY|WAS|+5.5', 'JOHNREDCORN|PIT|-3.5'
+    ]);
+    document.querySelectorAll('.grid article').forEach(article => article.querySelectorAll('[data-pick]').forEach(item => {
+      item.dataset.sport = nflPickKeys.has(`${article.dataset.player}|${item.dataset.pick}`) ? 'nfl' : 'college-football';
+    }));
     function updateLeaderboard() {
       const players = [...document.querySelectorAll('.grid article')].map(article => {
         const results = [...article.querySelectorAll('li')].filter(item => item.dataset.includedInStartingRecord !== 'true').map(item => item.querySelector('.status')).filter(status => status?.classList.contains('final'));
