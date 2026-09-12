@@ -206,6 +206,7 @@
       opponent.textContent = `(${other.homeAway === 'home' ? '@' : 'v'} ${other.team.abbreviation})`;
       item.dataset.opponent = other.team.abbreviation;
       item.dataset.opponentAtHome = String(other.homeAway === 'home');
+      item.dataset.gameKey = [item.dataset.sport || 'college-football', pick, other.team.abbreviation].sort().join('|');
       const gameInfo = item.querySelector('.game-info') || document.createElement('small');
       const time = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Phoenix', weekday: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(event.date));
       const network = event.competitions[0].broadcasts?.flatMap(b => b.names || []).join(', ') || 'TV TBD';
@@ -354,25 +355,59 @@
         }
         pending.forEach(item => {
           const key = `${item.dataset.sport || 'college-football'}|${item.dataset.pick}`;
-          if (!options.has(key)) options.set(key, { item, players: new Set() });
+          if (!options.has(key)) options.set(key, { item, players: new Set(), gameKey: item.dataset.gameKey || key });
           options.get(key).players.add(article);
         });
       });
 
-      const remaining = new Set(active.filter(article => !lockedIn.includes(article)));
-      const path = [];
-      while (remaining.size) {
-        let best = null;
-        options.forEach(option => {
-          const coverage = [...option.players].filter(article => remaining.has(article));
-          if (!best || coverage.length > best.coverage.length) best = { option, coverage };
+      const remainingPlayers = active.filter(article => !lockedIn.includes(article));
+      const playerBits = new Map(remainingPlayers.map((article, index) => [article, 1 << index]));
+      const outcomes = new Map();
+      options.forEach(option => {
+        const rootFor = option.item.dataset.opponent || option.item.dataset.pick.split('|')[0];
+        const outcomeKey = `${option.gameKey}|${rootFor}`;
+        if (!outcomes.has(outcomeKey)) outcomes.set(outcomeKey, { item: option.item, players: new Set(), options: [], gameKey: option.gameKey, rootFor });
+        const outcome = outcomes.get(outcomeKey);
+        option.players.forEach(player => outcome.players.add(player));
+        outcome.options.push(option);
+      });
+      const outcomeList = [...outcomes.values()].map(outcome => ({
+        ...outcome,
+        mask: [...outcome.players].reduce((mask, player) => mask | (playerBits.get(player) || 0), 0)
+      })).filter(outcome => outcome.mask);
+      const targetMask = (1 << remainingPlayers.length) - 1;
+      let bestPath = null;
+      function search(covered, chosen, sides) {
+        if (covered === targetMask) {
+          if (!bestPath || chosen.length < bestPath.length) bestPath = chosen;
+          return;
+        }
+        if (bestPath && chosen.length >= bestPath.length) return;
+        let selectedCandidates = null;
+        for (let index = 0; index < remainingPlayers.length; index += 1) {
+          const bit = 1 << index;
+          if (covered & bit) continue;
+          const candidates = outcomeList.filter(outcome => (outcome.mask & bit) && (!sides.has(outcome.gameKey) || sides.get(outcome.gameKey) === outcome.rootFor));
+          if (!candidates.length) return;
+          if (!selectedCandidates || candidates.length < selectedCandidates.length) selectedCandidates = candidates;
+        }
+        selectedCandidates.sort((a, b) => (b.mask & ~covered).toString(2).replace(/0/g, '').length - (a.mask & ~covered).toString(2).replace(/0/g, '').length);
+        selectedCandidates.forEach(outcome => {
+          const newCovered = covered | outcome.mask;
+          if (newCovered === covered) return;
+          const nextSides = new Map(sides);
+          nextSides.set(outcome.gameKey, outcome.rootFor);
+          search(newCovered, [...chosen, outcome], nextSides);
         });
-        if (!best || !best.coverage.length) break;
-        path.push(best);
-        best.coverage.forEach(article => remaining.delete(article));
       }
-
-      const unavailable = [...lockedIn, ...remaining].map(article => article.querySelector('h2').textContent);
+      search(0, [], new Map());
+      const resolved = new Set();
+      const path = (bestPath || []).map(option => {
+        const coverage = [...option.players].filter(player => !resolved.has(player));
+        coverage.forEach(player => resolved.add(player));
+        return { option, coverage };
+      });
+      const unavailable = [...lockedIn, ...remainingPlayers.filter(player => !resolved.has(player))].map(article => article.querySelector('h2').textContent);
       const noPath = unavailable.length > 0;
       noPathImage.hidden = !noPath;
       summary.hidden = noPath;
@@ -383,19 +418,21 @@
         : `Shortest available route: ${path.length} result${path.length === 1 ? '' : 's'} could eliminate all ${active.length} players still alive.`;
 
       path.forEach(({ option }) => {
-        const optionKey = `${option.item.dataset.sport || 'college-football'}|${option.item.dataset.pick}`;
-        option.players.forEach(article => article.querySelectorAll('li').forEach(item => {
-          const itemKey = `${item.dataset.sport || 'college-football'}|${item.dataset.pick}`;
-          if (itemKey !== optionKey) return;
-          const marker = document.createElement('span');
-          marker.className = 'critical-marker';
-          marker.textContent = '*';
-          const opponent = item.querySelector('.opponent');
-          if (opponent) {
-            const prefix = item.dataset.opponentAtHome === 'true' ? '@' : 'v';
-            opponent.replaceChildren(document.createTextNode(`(${prefix} `), marker, document.createTextNode(`${item.dataset.opponent})`));
-          }
-        }));
+        option.options.forEach(source => {
+          const optionKey = `${source.item.dataset.sport || 'college-football'}|${source.item.dataset.pick}`;
+          source.players.forEach(article => article.querySelectorAll('li').forEach(item => {
+            const itemKey = `${item.dataset.sport || 'college-football'}|${item.dataset.pick}`;
+            if (itemKey !== optionKey) return;
+            const marker = document.createElement('span');
+            marker.className = 'critical-marker';
+            marker.textContent = '*';
+            const opponent = item.querySelector('.opponent');
+            if (opponent) {
+              const prefix = item.dataset.opponentAtHome === 'true' ? '@' : 'v';
+              opponent.replaceChildren(document.createTextNode(`(${prefix} `), marker, document.createTextNode(`${item.dataset.opponent})`));
+            }
+          }));
+        });
       });
 
       path.forEach(({ option, coverage }) => {
