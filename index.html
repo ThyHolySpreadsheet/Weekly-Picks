@@ -26,6 +26,7 @@
     .caution { position: relative; top: 4px; margin-left: 1px; color: #b26a00; font-size: 1.12em; line-height: .6; white-space: nowrap; }
     .game-info { position: absolute; left: 11px; bottom: 11px; display: block; color: #3f3f3f; font-size: 8.4px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; }
     .status { position: absolute; left: 11px; bottom: 1px; display: block; font-size: 8px; font-weight: 700; letter-spacing: .03em; }
+    li.unplayed-game { background: #DCD0F5; }
     li.live-game { background: #F4E394; }
     li.incorrect { color: #b00020; background: #FCC6BB; text-decoration: line-through; text-decoration-thickness: 2px; }
     li.incorrect .spread { color: #b00020; }
@@ -225,6 +226,7 @@
       item.append(gameInfo);
       item.dataset.complete = 'false';
       item.classList.toggle('live-game', event.status.type.state === 'in');
+      item.classList.toggle('unplayed-game', event.status.type.state === 'pre');
       if (!['in', 'post'].includes(event.status.type.state)) return;
       const score = Number(chosen.score), otherScore = Number(other.score), completed = event.status.type.completed;
       item.dataset.complete = String(completed);
