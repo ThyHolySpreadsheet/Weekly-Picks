@@ -158,7 +158,7 @@
       const adjusted = score + line - otherScore;
       const outcome = adjusted > 0 ? 'winning' : adjusted < 0 ? 'losing' : 'tied';
       const label = adjusted > 0 ? 'WINNING' : adjusted < 0 ? 'LOSING' : 'TIED';
-      item.classList.toggle('incorrect', adjusted < 0);
+      item.classList.toggle('incorrect', completed && adjusted < 0);
       const player = item.closest('article');
       player.classList.toggle('has-loss', [...player.querySelectorAll('li.incorrect')].length > 0);
       const status = item.querySelector('.status') || document.createElement('small');
@@ -176,7 +176,7 @@
       CLTULLMANN: 'Tullmann', JOHNREDCORN: 'Chad', mgmccray: 'Marcus', PHILKOENIG824: 'Phil',
       Dingram: 'Ingram', HAYDENBERRY2: 'Hayden', natescheps: 'Nathan', 'REID-MERLOTTI': 'Reid',
       'TYLERKOENIG-961': 'Tyler', CLAYTONCHIFOS: 'Clayton', COREYGRAGG: 'Corey', DDICKEY22: 'Dan D',
-      RYANSDICKEY: 'Ryan', JohnHower: 'John'
+      DiskoBets: 'Dave', RYANSDICKEY: 'Ryan', JohnHower: 'John'
     };
     document.querySelectorAll('.grid article h2').forEach(heading => {
       const username = heading.textContent;
