@@ -165,10 +165,13 @@
       const competitors = event.competitions[0].competitors;
       const chosen = competitors.find(c => abbrevs(pick).includes(c.team.abbreviation));
       const other = competitors.find(c => c !== chosen);
-      const opponent = item.querySelector('.opponent') || document.createElement('small');
-      opponent.className = 'opponent';
+      let opponent = item.querySelector('.opponent');
+      if (!opponent) {
+        opponent = document.createElement('small');
+        opponent.className = 'opponent';
+        item.insertBefore(opponent, item.querySelector('.spread'));
+      }
       opponent.textContent = `(${other.homeAway === 'home' ? '@' : 'v'} ${other.team.abbreviation})`;
-      item.insertBefore(opponent, item.querySelector('.spread'));
       item.dataset.opponent = other.team.abbreviation;
       item.dataset.opponentAtHome = String(other.homeAway === 'home');
       const gameInfo = item.querySelector('.game-info') || document.createElement('small');
