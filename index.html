@@ -43,6 +43,7 @@
     .winning { color: #15732d; } .losing { color: #b00020; } .tied { color: #885b00; } .final { color: var(--muted); }
     .covered-team { color: #15732d !important; }
     .score-team { color: #000 !important; }
+    .critical-marker { margin-right: 1px; color: inherit; font-size: .85em; font-weight: 900; vertical-align: top; }
     .bottom-row { display: flex; align-items: flex-start; gap: 14px; margin-top: 22px; }
     .leaderboard { width: 40%; min-width: 348px; margin-top: 0; overflow: hidden; border: 1px solid var(--line); background: #fff; }
     .leaderboard h2 { min-height: 0; justify-content: flex-start; padding: 8px 11px; font-size: 15px; }
@@ -70,6 +71,7 @@
     .rollover li { display: block; min-height: 0; padding: 7px 10px; font-size: 11px; font-weight: 700; line-height: 1.25; }
     .rollover li + li { border-top: 1px solid var(--line); }
     .rollover .rollover-players { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; font-weight: 700; }
+    .critical-note { margin: 5px 0 0; color: var(--muted); font-size: 11px; font-weight: 700; }
     footer { margin-top: 18px; text-align: center; color: var(--muted); font-size: 13px; }
     @media (max-width: 600px) {
       main { padding: 14px 4px 28px; }
@@ -95,6 +97,8 @@
       .rollover h2 { padding: 6px; font-size: 8px; line-height: 1.1; }
       .rollover p, .rollover li { padding: 5px 4px; font-size: 6px; line-height: 1.15; }
       .rollover .rollover-players { margin-top: 1px; font-size: 4.7px; }
+      .critical-marker { margin-right: 0; font-size: .75em; }
+      .critical-note { margin-top: 3px; font-size: 7px; }
       footer { margin-top: 10px; font-size: 10px; }
     }
   </style>
@@ -122,6 +126,7 @@
       <article><h2>PHILKOENIG824</h2><ul><li data-pick="LA|-3.5" data-included-in-starting-record="true">LA <span class="spread">-3.5</span></li><li data-pick="MIZZ|-5.5">MIZZ <span class="spread">-5.5</span></li><li data-pick="ARK|+12.5">ARK <span class="spread">+12.5</span></li><li data-pick="DAL|-2.5">DAL <span class="spread">-2.5</span></li></ul></article>
       <article><h2>RYANSDICKEY</h2><ul><li data-pick="RUTG|+3.5">RUTG <span class="spread">+3.5</span></li><li data-pick="MSST|-1.5">MSST <span class="spread">-1.5</span></li><li data-pick="PIT|-3.5" data-sport="college-football">PIT <span class="spread">-3.5</span></li><li data-pick="WAS|+5.5">WAS <span class="spread">+5.5</span></li></ul></article>
     </section></div>
+    <p class="critical-note">* denotes game mentioned in critical games.</p>
     <div class="bottom-row">
     <section class="leaderboard" aria-labelledby="leaderboard-title">
       <h2 id="leaderboard-title">Leaderboard</h2>
@@ -261,6 +266,7 @@
       const pathList = document.querySelector('#rollover-path');
       const active = [...document.querySelectorAll('.grid article')].filter(article => !article.classList.contains('has-loss'));
       pathList.replaceChildren();
+      document.querySelectorAll('.critical-marker').forEach(marker => marker.remove());
       if (!active.length) {
         summary.textContent = 'Everyone has a final losing pick — rollover complete.';
         return;
@@ -298,6 +304,22 @@
       summary.textContent = unavailable.length
         ? `No full rollover this week: ${unavailable.join(', ')} ${unavailable.length === 1 ? 'has' : 'have'} no remaining pick that can lose.`
         : `Shortest available route: ${path.length} result${path.length === 1 ? '' : 's'} could eliminate all ${active.length} players still alive.`;
+
+      path.forEach(({ option }) => {
+        const optionKey = `${option.item.dataset.sport || 'college-football'}|${option.item.dataset.pick}`;
+        option.players.forEach(article => article.querySelectorAll('li').forEach(item => {
+          const itemKey = `${item.dataset.sport || 'college-football'}|${item.dataset.pick}`;
+          if (itemKey !== optionKey) return;
+          const marker = document.createElement('span');
+          marker.className = 'critical-marker';
+          marker.textContent = '*';
+          const opponent = item.querySelector('.opponent');
+          if (opponent) {
+            const prefix = item.dataset.opponentAtHome === 'true' ? '@' : 'v';
+            opponent.replaceChildren(document.createTextNode(`(${prefix} `), marker, document.createTextNode(`${item.dataset.opponent})`));
+          }
+        }));
+      });
 
       path.forEach(({ option, coverage }) => {
         const [team, spread] = option.item.dataset.pick.split('|');
