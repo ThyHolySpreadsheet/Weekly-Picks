@@ -51,6 +51,7 @@
     .leaderboard { width: 40%; min-width: 348px; margin-top: 0; overflow: hidden; border: 1px solid var(--line); background: #fff; }
     .payroll { width: 30%; min-width: 261px; }
     .payroll-short { display: none; }
+    .payroll-logo { display: block; width: 62%; max-width: 150px; height: auto; margin: 6px auto 2px; }
     .leaderboard h2 { min-height: 0; justify-content: flex-start; padding: 8px 11px; font-size: 15px; }
     .leaderboard table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 14px; }
     .leaderboard th, .leaderboard td { padding: 7px 10px; border-top: 1px solid var(--line); text-align: left; }
@@ -170,6 +171,7 @@
     </section>
     <section class="leaderboard payroll" aria-labelledby="payroll-title">
       <h2 id="payroll-title">ADP Payroll</h2>
+      <img class="payroll-logo" src="adp-logo-transparent.png" alt="ADP logo">
       <table>
         <thead><tr><th><span class="payroll-wide">Rank</span><span class="payroll-short">Rk</span></th><th><span class="payroll-wide">Player</span><span class="payroll-short">Name</span></th><th>Won</th></tr></thead>
         <tbody id="payroll-body"></tbody>
