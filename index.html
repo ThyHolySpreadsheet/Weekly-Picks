@@ -40,7 +40,8 @@
       pointer-events: none;
     }
     .winning { color: #15732d; } .losing { color: #b00020; } .tied { color: #885b00; } .final { color: var(--muted); }
-    .leaderboard { width: 40%; min-width: 348px; margin-top: 22px; overflow: hidden; border: 1px solid var(--line); background: #fff; }
+    .bottom-row { display: flex; align-items: flex-start; gap: 14px; margin-top: 22px; }
+    .leaderboard { width: 40%; min-width: 348px; margin-top: 0; overflow: hidden; border: 1px solid var(--line); background: #fff; }
     .leaderboard h2 { min-height: 0; justify-content: flex-start; padding: 8px 11px; font-size: 15px; }
     .leaderboard table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 14px; }
     .leaderboard th, .leaderboard td { padding: 7px 10px; border-top: 1px solid var(--line); text-align: left; }
@@ -59,6 +60,13 @@
     }
     .leaderboard th:last-child, .leaderboard td:last-child { width: 23%; }
     .leaderboard tbody tr:nth-child(even) { background: #f7faf5; }
+    .rollover { width: 40%; min-width: 348px; overflow: hidden; border: 1px solid var(--line); background: #fff; }
+    .rollover h2 { min-height: 0; justify-content: flex-start; padding: 8px 11px; font-size: 15px; }
+    .rollover p { margin: 0; padding: 8px 10px; border-bottom: 1px solid var(--line); background: var(--cell); font-size: 11px; font-weight: 700; line-height: 1.25; }
+    .rollover ol { margin: 0; padding: 0; list-style: none; }
+    .rollover li { display: block; min-height: 0; padding: 7px 10px; font-size: 11px; font-weight: 700; line-height: 1.25; }
+    .rollover li + li { border-top: 1px solid var(--line); }
+    .rollover .rollover-players { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; font-weight: 700; }
     footer { margin-top: 18px; text-align: center; color: var(--muted); font-size: 13px; }
     @media (max-width: 600px) {
       main { padding: 14px 4px 28px; }
@@ -73,11 +81,16 @@
       .opponent { margin-left: 1px; font-size: .62em; }
       .game-info { left: 3px; bottom: 8px; font-size: 4.8px; letter-spacing: 0; white-space: nowrap; }
       .status { left: 3px; bottom: 1px; font-size: 4px; letter-spacing: 0; white-space: nowrap; }
-      .leaderboard { width: 40%; min-width: 0; margin-top: 12px; }
+      .bottom-row { gap: 4px; margin-top: 12px; }
+      .leaderboard { width: 40%; min-width: 0; }
       .leaderboard h2 { padding: 6px; font-size: 11px; }
       .leaderboard table { font-size: 10px; }
       .leaderboard th, .leaderboard td { padding: 5px 4px; }
       .leaderboard th { font-size: 8px; }
+      .rollover { width: 40%; min-width: 0; }
+      .rollover h2 { padding: 6px; font-size: 8px; line-height: 1.1; }
+      .rollover p, .rollover li { padding: 5px 4px; font-size: 6px; line-height: 1.15; }
+      .rollover .rollover-players { margin-top: 1px; font-size: 4.7px; }
       footer { margin-top: 10px; font-size: 10px; }
     }
   </style>
@@ -105,6 +118,7 @@
       <article><h2>PHILKOENIG824</h2><ul><li data-pick="LA|-3.5" data-included-in-starting-record="true">LA <span class="spread">-3.5</span></li><li data-pick="MIZZ|-5.5">MIZZ <span class="spread">-5.5</span></li><li data-pick="ARK|+12.5">ARK <span class="spread">+12.5</span></li><li data-pick="DAL|-2.5">DAL <span class="spread">-2.5</span></li></ul></article>
       <article><h2>RYANSDICKEY</h2><ul><li data-pick="RUTG|+3.5">RUTG <span class="spread">+3.5</span></li><li data-pick="MSST|-1.5">MSST <span class="spread">-1.5</span></li><li data-pick="PIT|-3.5" data-sport="college-football">PIT <span class="spread">-3.5</span></li><li data-pick="WAS|+5.5">WAS <span class="spread">+5.5</span></li></ul></article>
     </section></div>
+    <div class="bottom-row">
     <section class="leaderboard" aria-labelledby="leaderboard-title">
       <h2 id="leaderboard-title">Leaderboard</h2>
       <table>
@@ -128,6 +142,12 @@
         </tbody>
       </table>
     </section>
+    <section class="rollover" aria-labelledby="rollover-title">
+      <h2 id="rollover-title">Best Path to Rollover</h2>
+      <p id="rollover-summary">Checking remaining picks…</p>
+      <ol id="rollover-path"></ol>
+    </section>
+    </div>
     <footer>Swipe the sheet sideways on iPhone · auto-refreshes every minute while open.</footer>
   </main>
   <script>
@@ -145,16 +165,20 @@
       const other = competitors.find(c => c !== chosen);
       const opponent = item.querySelector('.opponent') || document.createElement('small');
       opponent.className = 'opponent';
-      opponent.textContent = `(v ${other.team.abbreviation})`;
+      opponent.textContent = `(${other.homeAway === 'home' ? '@' : 'v'} ${other.team.abbreviation})`;
       item.insertBefore(opponent, item.querySelector('.spread'));
+      item.dataset.opponent = other.team.abbreviation;
+      item.dataset.opponentAtHome = String(other.homeAway === 'home');
       const gameInfo = item.querySelector('.game-info') || document.createElement('small');
       const time = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Phoenix', weekday: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(event.date));
       const network = event.competitions[0].broadcasts?.flatMap(b => b.names || []).join(', ') || 'TV TBD';
       gameInfo.className = 'game-info';
       gameInfo.textContent = `${time} · ${network}`;
       item.append(gameInfo);
+      item.dataset.complete = 'false';
       if (!['in', 'post'].includes(event.status.type.state)) return;
       const score = Number(chosen.score), otherScore = Number(other.score), completed = event.status.type.completed;
+      item.dataset.complete = String(completed);
       const adjusted = score + line - otherScore;
       const outcome = adjusted > 0 ? 'winning' : adjusted < 0 ? 'losing' : 'tied';
       const label = adjusted > 0 ? 'WINNING' : adjusted < 0 ? 'LOSING' : 'TIED';
@@ -201,19 +225,75 @@
         return `<tr><td>${rank}</td><td>${player.name}</td><td>${player.wins}-${player.losses}</td></tr>`;
       }).join('');
     }
+    function updateRolloverPath() {
+      const summary = document.querySelector('#rollover-summary');
+      const pathList = document.querySelector('#rollover-path');
+      const active = [...document.querySelectorAll('.grid article')].filter(article => !article.classList.contains('has-loss'));
+      pathList.replaceChildren();
+      if (!active.length) {
+        summary.textContent = 'Everyone has a final losing pick — rollover complete.';
+        return;
+      }
+
+      const options = new Map();
+      const lockedIn = [];
+      active.forEach(article => {
+        const pending = [...article.querySelectorAll('li')].filter(item => item.dataset.complete !== 'true');
+        if (!pending.length) {
+          lockedIn.push(article);
+          return;
+        }
+        pending.forEach(item => {
+          const key = `${item.dataset.sport || 'college-football'}|${item.dataset.pick}`;
+          if (!options.has(key)) options.set(key, { item, players: new Set() });
+          options.get(key).players.add(article);
+        });
+      });
+
+      const remaining = new Set(active.filter(article => !lockedIn.includes(article)));
+      const path = [];
+      while (remaining.size) {
+        let best = null;
+        options.forEach(option => {
+          const coverage = [...option.players].filter(article => remaining.has(article));
+          if (!best || coverage.length > best.coverage.length) best = { option, coverage };
+        });
+        if (!best || !best.coverage.length) break;
+        path.push(best);
+        best.coverage.forEach(article => remaining.delete(article));
+      }
+
+      const unavailable = [...lockedIn, ...remaining].map(article => article.querySelector('h2').textContent);
+      summary.textContent = unavailable.length
+        ? `No full rollover this week: ${unavailable.join(', ')} ${unavailable.length === 1 ? 'has' : 'have'} no remaining pick that can lose.`
+        : `Shortest available route: ${path.length} result${path.length === 1 ? '' : 's'} could eliminate all ${active.length} players still alive.`;
+
+      path.forEach(({ option, coverage }) => {
+        const [team, spread] = option.item.dataset.pick.split('|');
+        const opponent = option.item.dataset.opponent || 'their opponent';
+        const venue = option.item.dataset.opponentAtHome === 'true' ? '@' : 'vs.';
+        const row = document.createElement('li');
+        row.textContent = `Root for ${opponent} to cover ${venue} ${team} (${team} ${spread})`;
+        const players = document.createElement('span');
+        players.className = 'rollover-players';
+        players.textContent = `Eliminates: ${coverage.map(article => article.querySelector('h2').textContent).join(', ')}`;
+        row.append(players);
+        pathList.append(row);
+      });
+    }
     async function refreshScores() {
       const message = document.querySelector('#update-message');
       try {
         const responses = await Promise.all(['college-football', 'nfl'].flatMap(s => scoreboardDates().map(date => fetch(source(s, date)).then(r => r.json()).then(payload => ({ sport: s, payload })).catch(() => ({ sport: s, payload: { events: [] } })) )));
         const events = responses.flatMap(({ sport, payload }) => (payload.events || []).map(event => ({ ...event, _sport: sport })));
         document.querySelectorAll('[data-pick]').forEach(item => { try { updatePick(item, events); } catch (error) { console.error('Pick update failed:', error); } });
-        try { updateLeaderboard(); } catch (error) { console.error('Leaderboard update failed:', error); }
+        try { updateLeaderboard(); updateRolloverPath(); } catch (error) { console.error('Standings update failed:', error); }
         message.textContent = `Live scores updated ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · refreshes every minute`;
       } catch {
         message.textContent = 'Live scores unavailable right now — pull down to try again.';
       }
     }
-    try { updateLeaderboard(); } catch (error) { console.error('Initial leaderboard update failed:', error); }
+    try { updateLeaderboard(); updateRolloverPath(); } catch (error) { console.error('Initial standings update failed:', error); }
     refreshScores(); setInterval(refreshScores, 60000);
   </script>
 </body>
