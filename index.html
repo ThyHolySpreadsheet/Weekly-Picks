@@ -23,6 +23,7 @@
     li:last-child { border-bottom: 0; }
     .spread { color: #000; white-space: nowrap; }
     .opponent { margin-left: 2px; color: var(--muted); font-size: .7em; font-weight: 700; white-space: nowrap; }
+    .caution { position: relative; top: 2px; margin-left: 1px; color: #b26a00; font-size: 1.6em; line-height: .6; white-space: nowrap; }
     .game-info { position: absolute; left: 11px; bottom: 11px; display: block; color: #3f3f3f; font-size: 8.4px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; }
     .status { position: absolute; left: 11px; bottom: 1px; display: block; font-size: 8px; font-weight: 700; letter-spacing: .03em; }
     li.incorrect { color: #b00020; text-decoration: line-through; text-decoration-thickness: 2px; }
@@ -79,6 +80,7 @@
       h2 { min-height: 35px; padding: 4px 2px; font-size: 8px; line-height: 1.1; overflow-wrap: anywhere; }
       li { min-height: 29px; padding: 2px 3px 14px; gap: 1px; font-size: 7px; line-height: 1; }
       .opponent { margin-left: 1px; font-size: .62em; }
+      .caution { top: 1px; margin-left: 0; font-size: 1.3em; }
       .game-info { left: 3px; bottom: 8px; font-size: 4.8px; letter-spacing: 0; white-space: nowrap; }
       .status { left: 3px; bottom: 1px; font-size: 4px; letter-spacing: 0; white-space: nowrap; }
       .bottom-row { gap: 4px; margin-top: 12px; }
@@ -182,6 +184,16 @@
       const adjusted = score + line - otherScore;
       const outcome = adjusted > 0 ? 'winning' : adjusted < 0 ? 'losing' : 'tied';
       const label = adjusted > 0 ? 'WINNING' : adjusted < 0 ? 'LOSING' : 'TIED';
+      const caution = item.querySelector('.caution');
+      const closeLiveGame = event.status.type.state === 'in' && Math.abs(adjusted) <= 6;
+      if (closeLiveGame && !caution) {
+        const alert = document.createElement('small');
+        alert.className = 'caution';
+        alert.textContent = '⚠';
+        item.insertBefore(alert, item.querySelector('.spread'));
+      } else if (!closeLiveGame && caution) {
+        caution.remove();
+      }
       item.classList.toggle('incorrect', completed && adjusted < 0);
       const player = item.closest('article');
       player.classList.toggle('has-loss', [...player.querySelectorAll('li.incorrect')].length > 0);
@@ -210,7 +222,7 @@
     });
     function updateLeaderboard() {
       const players = [...document.querySelectorAll('.grid article')].map(article => {
-        const results = [...article.querySelectorAll('li')].filter(item => item.dataset.includedInStartingRecord !== 'true').map(item => item.querySelector('.status')).filter(Boolean);
+        const results = [...article.querySelectorAll('li')].filter(item => item.dataset.includedInStartingRecord !== 'true').map(item => item.querySelector('.status')).filter(status => status?.classList.contains('final'));
         const [startingWins, startingLosses] = startingRecords[article.dataset.player] || [0, 0];
         const wins = startingWins + results.filter(result => result.classList.contains('winning')).length;
         const losses = startingLosses + results.filter(result => result.classList.contains('losing')).length;
