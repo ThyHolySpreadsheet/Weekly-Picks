@@ -163,7 +163,8 @@
       player.classList.toggle('has-loss', [...player.querySelectorAll('li.incorrect')].length > 0);
       const status = item.querySelector('.status') || document.createElement('small');
       status.className = `status ${outcome}${completed ? ' final' : ''}`;
-      status.textContent = `${completed ? 'FINAL · ' : ''}${chosen.score}-${other.score} · ${label}`;
+      const gameClock = completed ? 'FINAL' : (event.status.type.shortDetail || event.status.type.detail || 'LIVE');
+      status.textContent = `${chosen.score}-${other.score} · ${gameClock} · ${label}`;
       item.append(status);
     }
     const startingRecords = {
