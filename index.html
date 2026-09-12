@@ -17,7 +17,7 @@
     .grid { display: grid; grid-template-columns: repeat(5, minmax(174px, 1fr)); gap: 0; min-width: 870px; width: 100%; }
     article { overflow: hidden; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--cell); }
     article:nth-child(5n) { border-right: 0; }
-    h2 { position: relative; margin: 0; min-height: 44px; display: flex; align-items: center; justify-content: center; padding: 8px 7px; background: var(--header); border-bottom: 1px solid var(--line); color: #000; font-size: 21px; letter-spacing: .02em; text-align: center; }
+    h2 { position: relative; margin: 0; min-height: 31px; display: flex; align-items: center; justify-content: center; padding: 3px 7px; background: var(--header); border-bottom: 1px solid var(--line); color: #000; font-size: 21px; line-height: 1; letter-spacing: .02em; text-align: center; }
     ul { margin: 0; padding: 0; list-style: none; }
     li { position: relative; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; min-height: 38px; padding: 2px 11px 21px; border-bottom: 1px solid var(--line); font-weight: 700; line-height: 1; background: var(--cell); color: #000; }
     li:last-child { border-bottom: 0; }
@@ -26,18 +26,19 @@
     .caution { position: relative; top: 4px; margin-left: 1px; color: #b26a00; font-size: 1.12em; line-height: .6; white-space: nowrap; }
     .game-info { position: absolute; left: 11px; bottom: 11px; display: block; color: #3f3f3f; font-size: 8.4px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; }
     .status { position: absolute; left: 11px; bottom: 1px; display: block; font-size: 8px; font-weight: 700; letter-spacing: .03em; }
-    li.incorrect { color: #b00020; text-decoration: line-through; text-decoration-thickness: 2px; }
+    li.incorrect { color: #b00020; background: #FCC6BB; text-decoration: line-through; text-decoration-thickness: 2px; }
     li.incorrect .spread { color: #b00020; }
     article.has-loss h2 { color: #000; }
     article.has-loss h2::after {
       content: "";
       position: absolute;
       z-index: 1;
-      left: 2%;
-      top: calc(50% - 7px);
-      width: 96%;
+      left: var(--strike-left, 2%);
+      top: calc(50% - var(--strike-offset, 7px));
+      width: var(--strike-width, 96%);
       height: 14px;
       background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'%3E%3Cpath d='M1 9 C13 5 21 10 32 7 S53 8 64 5 S84 7 99 3' fill='none' stroke='%23bd001e' stroke-width='4.6' stroke-linecap='round' opacity='.78'/%3E%3Cpath d='M2 10 C15 7 25 11 37 8 S58 9 70 6 S88 8 98 4' fill='none' stroke='%23e00025' stroke-width='1.7' stroke-linecap='round' opacity='.72'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+      transform: rotate(var(--strike-rotation, -7deg)) scaleY(var(--strike-flip, 1));
       pointer-events: none;
     }
     .winning { color: #15732d; } .losing { color: #b00020; } .tied { color: #885b00; } .final { color: var(--muted); }
@@ -81,7 +82,7 @@
       .sheet-wrap { overflow: hidden; }
       .grid { min-width: 0; grid-template-columns: repeat(5, minmax(0, 1fr)); }
       article { border-bottom-width: 8px; }
-      h2 { min-height: 35px; padding: 4px 2px; font-size: 12px; line-height: 1.1; overflow-wrap: anywhere; }
+      h2 { min-height: 25px; padding: 3px 2px; font-size: 12px; line-height: 1; overflow-wrap: anywhere; }
       li { min-height: 29px; padding: 2px 3px 14px; gap: 1px; font-size: 7px; line-height: 1; }
       .opponent { margin-left: 1px; font-size: .62em; }
       .caution { top: 2px; margin-left: 0; font-size: .91em; }
@@ -107,7 +108,6 @@
   <main>
     <header>
       <h1>LEAGUE WEEK 2</h1>
-      <p id="update-message">Visible selections only · checking live scores…</p>
     </header>
     <div class="sheet-wrap"><section class="grid">
       <article><h2>TYLERKOENIG-961</h2><ul><li data-pick="MIZZ|-5.5">MIZZ <span class="spread">-5.5</span></li><li data-pick="MICH|+5.5">MICH <span class="spread">+5.5</span></li><li data-pick="ALA|-10.5">ALA <span class="spread">-10.5</span></li><li data-pick="CIN|-3.5">CIN <span class="spread">-3.5</span></li></ul></article>
@@ -126,7 +126,7 @@
       <article><h2>PHILKOENIG824</h2><ul><li data-pick="LA|-3.5" data-included-in-starting-record="true">LA <span class="spread">-3.5</span></li><li data-pick="MIZZ|-5.5">MIZZ <span class="spread">-5.5</span></li><li data-pick="ARK|+12.5">ARK <span class="spread">+12.5</span></li><li data-pick="DAL|-2.5">DAL <span class="spread">-2.5</span></li></ul></article>
       <article><h2>RYANSDICKEY</h2><ul><li data-pick="RUTG|+3.5">RUTG <span class="spread">+3.5</span></li><li data-pick="MSST|-1.5">MSST <span class="spread">-1.5</span></li><li data-pick="PIT|-3.5" data-sport="college-football">PIT <span class="spread">-3.5</span></li><li data-pick="WAS|+5.5">WAS <span class="spread">+5.5</span></li></ul></article>
     </section></div>
-    <p class="critical-note">* denotes game mentioned in critical games.</p>
+    <p class="critical-note">* denotes game mentioned in critical games</p>
     <div class="bottom-row">
     <section class="leaderboard" aria-labelledby="leaderboard-title">
       <h2 id="leaderboard-title">Leaderboard</h2>
@@ -218,13 +218,26 @@
       item.classList.toggle('incorrect', completed && adjusted < 0);
       const player = item.closest('article');
       player.classList.toggle('has-loss', [...player.querySelectorAll('li.incorrect')].length > 0);
+      const playerIndex = [...document.querySelectorAll('.grid article')].indexOf(player);
+      const heading = player.querySelector('h2');
+      const nameLabel = heading.querySelector('.player-name');
+      const headingBox = heading.getBoundingClientRect();
+      const nameBox = nameLabel.getBoundingClientRect();
+      const extraEachSide = nameBox.width * .1;
+      if (headingBox.width) {
+        player.style.setProperty('--strike-left', `${((nameBox.left - headingBox.left - extraEachSide) / headingBox.width) * 100}%`);
+        player.style.setProperty('--strike-width', `${((nameBox.width + extraEachSide * 2) / headingBox.width) * 100}%`);
+      }
+      player.style.setProperty('--strike-rotation', `${-10 + ((playerIndex * 7) % 19)}deg`);
+      player.style.setProperty('--strike-offset', `${5 + ((playerIndex * 3) % 5)}px`);
+      player.style.setProperty('--strike-flip', playerIndex % 2 ? '-1' : '1');
       const status = item.querySelector('.status') || document.createElement('small');
       status.className = `status ${outcome}${completed ? ' final' : ''}`;
       const gameClock = completed ? 'FINAL' : (event.status.type.shortDetail || event.status.type.detail || 'LIVE');
       const chosenTeam = document.createElement('span');
       chosenTeam.className = 'score-team';
       chosenTeam.textContent = chosen.team.abbreviation;
-      status.replaceChildren(chosenTeam, document.createTextNode(` ${chosen.score} - ${other.team.abbreviation} ${other.score} · ${gameClock} · ${label}`));
+      status.replaceChildren(chosenTeam, document.createTextNode(` ${chosen.score} - ${other.team.abbreviation} ${other.score} · ${gameClock}`));
       item.append(status);
     }
     const startingRecords = {
@@ -242,7 +255,10 @@
     document.querySelectorAll('.grid article h2').forEach(heading => {
       const username = heading.textContent;
       heading.closest('article').dataset.player = username;
-      heading.textContent = displayNames[username] || username;
+      const playerName = document.createElement('span');
+      playerName.className = 'player-name';
+      playerName.textContent = displayNames[username] || username;
+      heading.replaceChildren(playerName);
     });
     function updateLeaderboard() {
       const players = [...document.querySelectorAll('.grid article')].map(article => {
@@ -341,9 +357,9 @@
         const events = responses.flatMap(({ sport, payload }) => (payload.events || []).map(event => ({ ...event, _sport: sport })));
         document.querySelectorAll('[data-pick]').forEach(item => { try { updatePick(item, events); } catch (error) { console.error('Pick update failed:', error); } });
         try { updateLeaderboard(); updateRolloverPath(); } catch (error) { console.error('Standings update failed:', error); }
-        message.textContent = `Live scores updated ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · refreshes every minute`;
+        if (message) message.textContent = `Live scores updated ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · refreshes every minute`;
       } catch {
-        message.textContent = 'Live scores unavailable right now — pull down to try again.';
+        if (message) message.textContent = 'Live scores unavailable right now — pull down to try again.';
       }
     }
     try { updateLeaderboard(); updateRolloverPath(); } catch (error) { console.error('Initial standings update failed:', error); }
