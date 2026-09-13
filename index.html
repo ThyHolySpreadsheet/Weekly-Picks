@@ -26,7 +26,7 @@
     .caution { position: relative; top: 4px; margin-left: 1px; color: #b26a00; font-size: 1.12em; line-height: .6; white-space: nowrap; }
     .game-info { position: absolute; left: 11px; bottom: 11px; display: block; color: #3f3f3f; font-size: 8.4px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; }
     .status { position: absolute; left: 11px; bottom: 1px; display: block; font-size: 8px; font-weight: 700; letter-spacing: .03em; }
-    li.unplayed-game { background: #DCD0F5; }
+    li.unplayed-game { background: #DCE2F5; }
     li.live-game { background: #F4E394; }
     li.incorrect { color: #b00020; background: #FCC6BB; text-decoration: line-through; text-decoration-thickness: 2px; }
     li.incorrect .spread { color: #b00020; }
@@ -296,14 +296,19 @@
     function groupSponsor(titleId, logoClass) {
       const title = document.querySelector(titleId);
       const logo = document.querySelector(logoClass);
-      const label = title.parentElement.querySelector('.sponsor-label');
+      const label = title?.parentElement?.querySelector('.sponsor-label');
+      if (!title || !logo || !label) return;
       const area = document.createElement('div');
       area.className = 'sponsor-area';
       title.insertAdjacentElement('afterend', area);
       area.append(label, logo);
     }
-    groupSponsor('#payroll-title', '.payroll-logo');
-    groupSponsor('#rollover-title', '.rollover-logo');
+    try {
+      groupSponsor('#payroll-title', '.payroll-logo');
+      groupSponsor('#rollover-title', '.rollover-logo');
+    } catch (error) {
+      console.error('Sponsor setup failed:', error);
+    }
     document.querySelectorAll('.grid article h2').forEach(heading => {
       const username = heading.textContent;
       heading.closest('article').dataset.player = username;
