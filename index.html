@@ -200,7 +200,7 @@
     <footer>Swipe the sheet sideways on iPhone · auto-refreshes every minute while open.</footer>
   </main>
   <script>
-    const aliases = { MIZZ:['MIZZ','MIZ'], OKLA:['OKLA','OU'], ALA:['ALA','BAMA'], MSST:['MSST'], TENN:['TENN'], ORE:['ORE'], TXAM:['TXAM','TAMU','TA&M'], BUFF:['BUFF'], CHAR:['CHAR','CLT'], USM:['USM'], RUTG:['RUTG'], PSU:['PSU'], ISU:['ISU'], OSU:['OSU'], PIT:['PIT','PITT'], JAC:['JAC','JAX'], WAS:['WAS','WSH'], LA:['LAR'], TEX:['TEX','UT'], MD:['MD','MARY'], ULL:['ULL','UL'] };
+    const aliases = { MIZZ:['MIZZ','MIZ'], OKLA:['OKLA','OU'], ALA:['ALA','BAMA'], MSST:['MSST'], TENN:['TENN'], ORE:['ORE'], TXAM:['TXAM','TAMU','TA&M'], BUFF:['BUFF'], CHAR:['CHAR','CLT'], USM:['USM'], RUTG:['RUTG'], PSU:['PSU'], ISU:['ISU'], OSU:['OSU'], PIT:['PIT','PITT'], JAC:['JAC','JAX'], WAS:['WAS','WSH'], LA:['LAR'], TEX:['TEX','UT'], IND:['IND','IU'], MD:['MD','MARY'], ULL:['ULL','UL'] };
     const abbrevs = key => aliases[key] || [key];
     const formatDate = date => { const parts = Object.fromEntries(new Intl.DateTimeFormat('en', { timeZone: 'America/Phoenix', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date).filter(p => p.type !== 'literal').map(p => [p.type, p.value])); return `${parts.year}${parts.month}${parts.day}`; };
     const scoreboardDates = () => { const now = new Date(), day = now.getDay(), thursday = new Date(now); thursday.setDate(now.getDate() - ((day - 4 + 7) % 7)); return Array.from({ length: 5 }, (_, offset) => { const date = new Date(thursday); date.setDate(thursday.getDate() + offset); return formatDate(date); }); };
@@ -327,7 +327,7 @@
       'DDICKEY22|SEA|-4.5',
       'natescheps|TB|-8.5', 'natescheps|JAC|+2.5',
       'JohnHower|BUF|-4.5', 'JohnHower|GB|-3.5', 'JohnHower|HOU|-2.5',
-      'DiskoBets|BUF|-4.5',
+      'DiskoBets|BUF|-4.5', 'Dingram|BUF|-4.5',
       'JOHNREDCORN|TB|-8.5', 'JOHNREDCORN|CAR|-2.5', 'JOHNREDCORN|PHI|-7',
       'COREYGRAGG|TB|-8.5', 'COREYGRAGG|NYJ|+3.5', 'COREYGRAGG|NE|-4.5', 'COREYGRAGG|DAL|-3.5',
       'CLTULLMANN|NE|-4.5', 'CLTULLMANN|KC|-6.5',
