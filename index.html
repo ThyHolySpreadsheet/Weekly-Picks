@@ -89,6 +89,16 @@
     .no-rollover-image { display: block; width: 100%; height: auto; }
     .no-rollover-image[hidden] { display: none; }
     .critical-note { margin: 5px 0 0; color: var(--muted); font-size: 11px; font-weight: 700; }
+    .champions { margin-top: 16px; border: 1px solid var(--line); background: #fff; overflow: hidden; }
+    .champions h2 { min-height: 0; justify-content: center; padding: 8px 11px; font-size: 30px; }
+    .champion-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; padding: 10px; background: #f7faf5; }
+    .champion { position: relative; aspect-ratio: 1 / 2; min-width: 0; overflow: hidden; border: 0; background: url('champion-cactus-banner-v11.png') center / contain no-repeat; text-align: center; color: #fff; font-family: Arial Black, Arial, sans-serif; }
+    .champion-name, .champion-label, .champion-year, .champion-record, .champion-pct { position: absolute; left: 7%; width: 86%; line-height: 1.05; }
+    .champion-name { top: 15%; font-size: clamp(10px, 1.25vw, 18px); letter-spacing: 0; text-transform: uppercase; }
+    .champion-label { top: 27%; font-family: Arial, sans-serif; font-size: clamp(7px, .8vw, 12px); font-weight: 900; letter-spacing: .04em; }
+    .champion-year { top: 35%; font-size: clamp(11px, 1.4vw, 20px); letter-spacing: -.03em; white-space: nowrap; }
+    .champion-record { top: 44%; font-family: Arial, sans-serif; font-size: clamp(7px, .8vw, 12px); font-weight: 900; letter-spacing: .04em; }
+    .champion-pct { top: 49%; font-family: Arial, sans-serif; font-size: clamp(6px, .7vw, 10px); font-weight: 900; letter-spacing: .02em; }
     footer { margin-top: 18px; text-align: center; color: var(--muted); font-size: 13px; }
     @media (max-width: 600px) {
       main { padding: 14px 4px 28px; }
@@ -131,6 +141,13 @@
       .no-rollover-image { min-height: 55px; object-fit: cover; }
       .critical-marker { margin-right: 0; font-size: .75em; }
       .critical-note { margin-top: 3px; font-size: 7px; }
+      .champions { margin-top: 10px; }
+      .champions h2 { padding: 6px; font-size: 22px; }
+      .champion-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 5px; }
+      .champion-name { font-size: 9px; }
+      .champion-label, .champion-record { font-size: 5px; }
+      .champion-pct { font-size: 5px; }
+      .champion-year { font-size: 12px; }
       footer { margin-top: 10px; font-size: 10px; }
     }
   </style>
@@ -197,6 +214,19 @@
       <img id="no-rollover-image" class="no-rollover-image" hidden alt="No path to rollover" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAwICQoJBwwKCQoNDAwOER0TERAQESMZGxUdKiUsKyklKCguNEI4LjE/MigoOk46P0RHSktKLTdRV1FIVkJJSkf/2wBDAQwNDREPESITEyJHMCgwR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0f/wAARCABhAKADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDp9WmEWl3Dk4AjP+FedyzfPuUgFeg7dP8A61d94liaXQLtIhltm4fgc/0rzCFZp42kSN2QEqWCnAPof896xobM5sLblZcVv3Z5IU4A459/6f5FW49xJAwP4RzwvTJ/CslpJEGJF+Yc9Pcn+tSw3pSM7G2lR8pPbkn9a3Os1SVCkH5VAHTvz0FFnGZZQojCjPA7/U1nQXgE+ZTnIwr+npW1pmL4BoeN46DsDmk2kNJsu2GnpdNJLJKUt4vk355c+gqO6srR32wQTqwzh3cENj1GciteCI2mkCKNQ8i5CHp8xY8/pSxRSRWrLLBEJCDyjEn9QK5XNuR1KCSscpdW32hSRkgDgA5rGntth27s+wrqri3Fu2x8gkcDpWXdwRhzyDXUtVc5mrMwZLcbcrxTLGea1vFkt3ZGU8Feoq9IAxKDr29qjhtQGY5yzEcgVL3FY25fFmu3Fl9lW4EK4wzouHb/AIF2/DFYbQM/3gxyeTkkVo29srOA2OeueKtiGKJSdg2j60kxWsYe0oyjGYx1B6irAm8rmJmUgchWx+lWpLZHk/dZ9emcVD/ZhlIHzAe9JtIqzKN7fGZVExYhTkH/ABpqkMoKkEEZGKW9tdhMYbcRyM96rrA9q0cgYlH5KkdKqLIaLFFPkTaFbGFccU3pWhDL+reJr/WYUSdhFGFG6OPIDHuT6/TtW78L72NNYm0ycK0V3GWVW5G9e2Pdc/8AfNcGWKMB2rR0e+OnataXysV8iZXOP7oPzD8RkfjV8qSsgjFR0R6Tr/hWza+YoPLDfMuOmPT/AD7Vy154QuwWNsUkU9icGvUdciElms68mM/of8j8qwtx/CuGcnCWh204qcdTibTwrqchMc8KIh4JZhj9K6nRdBh0i2YLKZGwccYxVxn2jOTmnQybpCvpUOo2aKmkU3QPaAl9uxznnHOSR/OjTS5iUs0kgZyzM/6Ae3WpbyylcFYlDK7Z69O1WpFEVuqL2FJDkYviKzbeZwCQemK56W3uHtt7AJvOBmuxmbzl8s8jvXMeKZ2to1EQGQQAK1U3sjJwW5iSWQtYWk3kselaOkaZLNGrNgc96ybWZry+SCRz3z7Ef/XFd1pcKrGMDgDiicnFChFNjYdFi2fPnJ9BUh0OAENuP09a1o1BwKkaDK9evvWPNI15YmL/AGfFHkBQB9Khms0YEKADWtNGQCM5qlKuATn7tTdj5VY4/WIDDM3mR5JHBFYk0jYADMAPXmuw12LzkBIxjuOtcrOsKStwwP1611wd0ck1ZjIlBjxnhucD1pWGCQe1SQqpb5GyGPQ96jvjsnZQMVrEyZQlXAz1pYm5welE3Q0yI81uI+gfDsw1HwrYSy/MZbVA/wBduD+uaxJkaGR0bqrEflVr4bzGXwRZbuqNIn5O2P0pviIGDUN4GVlXP4jg/wBK4q0dLnRQlaVjPkkywWpIwAQQeaqiUFvvc1Ks3XjgdK5kdty8kuFOTxVe6mHrUBkycL0phQsTu6VRDFiccsa43xTM13dCJDgA9a6m7l8tCQeAOlcZevvvMDk/4mtILW5nLVFrS9JNmlpdmQMLouAuORtNdnYK3l4z+VcqbtorS2iVci3dsdyc4rX0jXY5XCSKFb60p3erIg0tDpAAoA5p2/jhjmqkl2m0uMn6VUXXrcArMpQjueayszW6Ls8nynI/KqNxkptGOTmhr+GaQLG3XoexocgEkc8UrWHczr4J5IV+exrl9QhXPyDAPqa3dVaRTuZSF71jyuJAoIJA7iuqGxyz3K9qmTskUEeoGar6opW668bRjirsbiJw5Bx/Os7U5ka5DA4BGRmto7mTKEpHT3pE4NMkOXApQea3JPavhixHgyHP/PWT/wBCqz4u2m0hkyQwcrkehH/1qr/DVf8AiibQ92eQ/wDj7Va8UlRpjd9rA/rj+tYzV0yoO0kcojbSOeTVhJuAD371lidpZCF5Ge1WowygZJri5Tu5jVt8NyORT7p0iiJJFZa3fkMepxWfqd9cSqWQbR6mmo3YmyvrmrCJPLU5kfoM1i6bI8tziSMksd28dBzTrLRbzUrg3bXKbCcEueQOnHauhFjbBPs5DBLcbcr1PPrXUqdkczq2ZHZ2skwkZMblz+fFR2+iXP2xhM5ZAMrLzuzjp9M1s6alugMcKsowfvHJJzVqVmCBc/MxwP8AGsJyalY1hHmVxLeARaWULs0hOAx61z+p6Zdxxm6Q+bj5gAMkj6ZFdKVKskY6AVbWBXiUkA46g1jGTTNpRRy+niUwRySW7wiQZVj25xgjtWrGsm3DDPuK2NqD5BHjPrUM6RxRFFGMe9EnclJowNacRWDlgCSPu1yPmytIEjQkMvbnPWuv1a3+1RAbsY71Q0G2jtDNdzIGZOE47+1aQlyxM5xvIzRpWoTRKTCIkB5aRtpY1zWoE/bZFZdpQ7MfTivT9kVzFDKxMryt0dcBPYA9K848QOja9eeXjaJSPxHB/WtqVRybuZ1YKKKJOZfwp1RucMrUpPIFdjMD3TwSfs3gew7ExlvzJP8AWsDxRqRVfJMmDMw6+gPNamiyOPDmnWkfWO2jVj77RmuL8f6lYTS29jZSLLLAWMrryATjjPc8c1k0CepbtLi3ReHU596srcJJ0cAYrzzew5BIqRLmdPuSuPoaydI29qdtLcxCZY1wT35pmovHKI4RzuPzAelc9oIe6vmjkmcZXOQef1rblhS3uVVWZiV5LHmoSSqco3P3bkqFY7do1G3pgDtVlZV8xmEm3zFGTjODVMHmrMNuZYZHU/MhHy+orqdjlJbaUrdIA+4ZxmtUyxre26ycL97d2rK8kRSllYkLIFH5Zq85ju9sbdBxxXFWXvHbRl7havL2zSbE13HEXbEYJwTVvT7jemxyCR0PrVa3sreCJtqkkn5ixyTVuAQCNVjULjpgVi0bqV9x88mxTgVRuJGdC3qKnusmqcxIBUnjFTYGypMx2HvmixeNnig2fxeYxxnAzj/GoZ3x9BV2ye2t7GO4mk2RtHvc5wMdaroT1Kuvaimn27zoMNk+UvqxGB/jXmLks5ZiSxOST3Na/iXWjquoEw5W3i+WMevvWMTk5NdlKHKjlqz5noGNx9h1ojVnkCjqxwKYGOw+5qxpp/4mMB7rIG/I5/pXUzI6fxFr98ZX022LW1ogwwT7z8dCfT2rm5FdSu5VA25GMZwT3/KraXTm5luQEkI+c7kDAA4HIPfkfnVEMGUnktk81j1NLJRFopO1FUZmv4abGqD/AHDW/qJ23cXuprm9AcJqanbn5TxXQ37b5oGHHBrnf8dF29wcpqeOUJDIAcMcYqsDVS91FLZdqnc/pXUYm1cXUYWJdy7sqx+tPdbmK5JgljRW/idSa5GCaR5RcyyKQP4c9K6+xP2y2V1OeK5a2judNF6WL6TamVzm1cDrgkZp8c0ob97G0bN+I/Oq8UUqN0JB9q0FXcoBXketc1zqauSykLFubrjNZ8zd8068nO8LmqN1PtUAHJosTcr3knylV5ZuAKwfFu+1tba1Ej7W5K544H/166GxtzJcebN0XoK5vxuGe7ikBBVBtOOxPP8AT9K1pr37ET+E5qkoorrOQZ/Cas6d/wAfqfRv/QTRRWrASL7k/wDuD/0JabD/AKsUUVity5bD6T0oopsg0/D/APyFk/3TW5N/rk+poornf8VGq/hsd/C30rmrv/j4b60UV1swQ2P/AFL/AFFd14O/5B/4miiuet8JvR+I6PvQ/Q0UVxnYzIm/15qnL/x9LRRVozZbt/utXK+Kfu3P+/H/ACaiitKPxk1fgOVoXrRRXUch/9k=">
     </section>
     </div>
+    <section class="champions" aria-labelledby="champions-title">
+      <h2 id="champions-title">In The Rafters</h2>
+      <div class="champion-grid">
+        <article class="champion" aria-label="2018-2019 champion Reid, 46-26"><span class="champion-name">Reid</span><span class="champion-label">Pick 'em</span><span class="champion-year">2018-2019</span><span class="champion-record">46-26</span><span class="champion-pct">.639</span></article>
+        <article class="champion" aria-label="2019-2020 champion Reid, 44-28"><span class="champion-name">Reid</span><span class="champion-label">Pick 'em</span><span class="champion-year">2019-2020</span><span class="champion-record">44-28</span><span class="champion-pct">.611</span></article>
+        <article class="champion" aria-label="2020-2021 champion Coach, 34-30"><span class="champion-name">Coach</span><span class="champion-label">Pick 'em</span><span class="champion-year">2020-2021</span><span class="champion-record">34-30</span><span class="champion-pct">.531</span></article>
+        <article class="champion" aria-label="2021-2022 champion Dave, 39-21"><span class="champion-name">Dave</span><span class="champion-label">Pick 'em</span><span class="champion-year">2021-2022</span><span class="champion-record">39-21</span><span class="champion-pct">.650</span></article>
+        <article class="champion" aria-label="2022-2023 champion Nathan, 36-28"><span class="champion-name">Nathan</span><span class="champion-label">Pick 'em</span><span class="champion-year">2022-2023</span><span class="champion-record">36-28</span><span class="champion-pct">.563</span></article>
+        <article class="champion" aria-label="2023-2024 champion Ingram, 45-31"><span class="champion-name">Ingram</span><span class="champion-label">Pick 'em</span><span class="champion-year">2023-2024</span><span class="champion-record">45-31</span><span class="champion-pct">.592</span></article>
+        <article class="champion" aria-label="2024-2025 champion Tyler, 42-34"><span class="champion-name">Tyler</span><span class="champion-label">Pick 'em</span><span class="champion-year">2024-2025</span><span class="champion-record">42-34</span><span class="champion-pct">.553</span></article>
+        <article class="champion" aria-label="2025-2026 champion Reid, 41-35"><span class="champion-name">Reid</span><span class="champion-label">Pick 'em</span><span class="champion-year">2025-2026</span><span class="champion-record">41-35</span><span class="champion-pct">.539</span></article>
+      </div>
+    </section>
     <footer>Swipe the sheet sideways on iPhone · auto-refreshes every minute while open.</footer>
   </main>
   <script>
