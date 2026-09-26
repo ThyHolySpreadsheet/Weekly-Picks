@@ -255,7 +255,7 @@
     <footer>Swipe the sheet sideways on iPhone · auto-refreshes every minute while open.</footer>
   </main>
   <script>
-    const aliases = { MIZZ:['MIZZ','MIZ'], OKLA:['OKLA','OU'], ALA:['ALA','BAMA'], MSST:['MSST'], TENN:['TENN'], ORE:['ORE'], TXAM:['TXAM','TAMU','TA&M'], BUFF:['BUFF'], CHAR:['CHAR','CLT'], USM:['USM'], RUTG:['RUTG'], PSU:['PSU'], ISU:['ISU'], OSU:['OSU'], PIT:['PIT','PITT'], JAC:['JAC','JAX'], WAS:['WAS','WSH'], LA:['LAR'], TEX:['TEX','UT'], IND:['IND','IU'], MD:['MD','MARY'], ULL:['ULL','UL'] };
+    const aliases = { BSU:['BSU','BOIS'], SCAR:['SCAR','SC'], MIZZ:['MIZZ','MIZ'], OKLA:['OKLA','OU'], ALA:['ALA','BAMA'], MSST:['MSST'], TENN:['TENN'], ORE:['ORE'], TXAM:['TXAM','TAMU','TA&M'], BUFF:['BUFF'], CHAR:['CHAR','CLT'], USM:['USM'], RUTG:['RUTG'], PSU:['PSU'], ISU:['ISU'], OSU:['OSU'], PIT:['PIT','PITT'], JAC:['JAC','JAX'], WAS:['WAS','WSH'], LA:['LAR'], TEX:['TEX','UT'], IND:['IND','IU'], MD:['MD','MARY'], ULL:['ULL','UL'] };
     const abbrevs = key => aliases[key] || [key];
     const formatDate = date => { const parts = Object.fromEntries(new Intl.DateTimeFormat('en', { timeZone: 'America/Phoenix', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date).filter(p => p.type !== 'literal').map(p => [p.type, p.value])); return `${parts.year}${parts.month}${parts.day}`; };
     const scoreboardDates = () => ["20260924", "20260925", "20260926", "20260927", "20260928"];
@@ -279,7 +279,7 @@
       item.dataset.gameKey = [item.dataset.sport || 'college-football', pick, other.team.abbreviation].sort().join('|');
       const gameInfo = item.querySelector('.game-info') || document.createElement('small');
       const time = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Phoenix', weekday: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(event.date));
-      const network = event.competitions[0].broadcasts?.flatMap(b => b.names || []).join(', ') || 'TV TBD';
+      const network = [...new Set([...(event.competitions[0].broadcasts || []).flatMap(b => b.names || []), ...(event.competitions[0].geoBroadcasts || []).map(b => b.media?.shortName || b.media?.name).filter(Boolean)])].join(', ') || 'TV TBD';
       gameInfo.className = 'game-info';
       gameInfo.textContent = `${time} · ${network}`;
       item.append(gameInfo);
