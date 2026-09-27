@@ -157,6 +157,7 @@
     .weekly-award h2 { padding: 8px 10px; min-height: 0; font-size: 15px; line-height: 1.25; }
     .weekly-award p { margin: 0; padding: 7px 10px; }
     .award-winner { font-size: 20px; font-weight: 700; }
+    .award-reason { font-size: .65em; font-weight: 400; line-height: 1.4; }
     .award-detail, .award-rules { font-size: 11px; line-height: 1.4; }
     .weekly-award .award-rules { border-top: 1px solid var(--line); background: #fff; color: var(--muted); }
     @media (max-width: 600px) {
@@ -168,7 +169,13 @@
       .award-detail, .award-rules { font-size: 9px; }
     }
     .trap-game + .trap-game { border-top: 1px solid var(--line); }
+    .trap-game { background: #DCE2F5; }
+    .trap-game.trap-live { background: #F4E394; }
+    .trap-game.trap-covered { background: var(--cell); }
+    .trap-game.trap-lost { background: #FCC6BB; }
+    .trap-game.trap-push { background: var(--header); }
     .trap-game strong { display: block; }
+    .trap-game .trap-cover { margin-top: 6px; }
     .trap-game span { display: block; margin-top: 3px; font-weight: 400; }
   </style>
 </head>
@@ -222,21 +229,17 @@
     </section>
 
     <section class="weekly-award" aria-labelledby="patriot-title">
-      <h2 id="patriot-title">Free Thinking Patriot of the week</h2>
+      <h2 id="patriot-title">Free Thinking Patriot of the Week</h2>
       <p class="award-winner" id="patriot-winner"></p>
-      <p class="award-detail" id="patriot-detail"></p>
-      <p class="award-rules">Most solo picks wins. Tiebreaker: fewer total other players sharing those picks.</p>
     </section>
     <section class="weekly-award" aria-labelledby="sheeple-title">
-      <h2 id="sheeple-title">sheeple of the week</h2>
+      <h2 id="sheeple-title">Sheeple of the Week</h2>
       <p class="award-winner" id="sheeple-winner"></p>
-      <p class="award-detail" id="sheeple-detail"></p>
-      <p class="award-rules">Fewest solo picks wins. Tiebreaker: more total other players sharing those picks. Exact ties share either award.</p>
     </section>
     <section class="weekly-award" aria-labelledby="traps-title">
-      <h2 id="traps-title">Traps of the week</h2>
+      <h2 id="traps-title">Traps of the Week</h2>
       <div id="traps-list"></div>
-      <p class="award-rules">Top 3 matchups by total picks on either side. Equal totals are ordered alphabetically.</p>
+      <p class="award-rules">Top 3 matchups by total picks. Cover status tracks the most-picked side at its listed spread; tied sides both display. Equal matchup totals are ordered alphabetically.</p>
     </section>
     </div>
     </div>
@@ -265,6 +268,7 @@
       const [pick, lineText] = item.dataset.pick.split('|'), line = Number(lineText);
       const event = events.find(e => (!item.dataset.sport || e._sport === item.dataset.sport) && e.competitions?.[0]?.competitors?.some(c => abbrevs(pick).includes(c.team.abbreviation)) && (!item.dataset.opponent || e.competitions[0].competitors.some(c => abbrevs(item.dataset.opponent).includes(c.team.abbreviation))));
       if (!event) return;
+      item.dataset.gameState = event.status.type.state;
       const competitors = event.competitions[0].competitors;
       const chosen = competitors.find(c => abbrevs(pick).includes(c.team.abbreviation));
       const other = competitors.find(c => c !== chosen);
@@ -589,11 +593,19 @@
       if (!ranked.length) return;
       for (const [id, best] of [['patriot', ranked[0]], ['sheeple', ranked[ranked.length - 1]]]) {
         const winners = ranked.filter(player => player.solo === best.solo && player.repetitionPenalty === best.repetitionPenalty);
-        document.querySelector('#' + id + '-winner').textContent = winners.map(player => player.name).join(' & ');
-        document.querySelector('#' + id + '-detail').textContent =
-          best.solo + ' solo ' + (best.solo === 1 ? 'pick' : 'picks') + ' · ' + best.repetitionPenalty +
-          ' total shared picks' + (winners.length > 1 ? ' each · Tied award' : '') +
-          '. Shared picks count other players on each selection, added across all four picks.';
+        const peers = ranked.filter(player => player.solo === best.solo);
+        const reason = document.createElement('span');
+        reason.className = 'award-reason';
+        const soloLabel = best.solo === 1 ? 'solo pick' : 'solo picks';
+        const matchLabel = best.repetitionPenalty === 1 ? 'matching pick' : 'matching picks';
+        reason.textContent = ' — ' + best.solo + ' ' + soloLabel +
+          (id === 'patriot' ? ' (most)' : ' (fewest)') + '; ' + best.repetitionPenalty +
+          ' ' + matchLabel + ' from other players' +
+          (peers.length > 1 ? (id === 'patriot' ? ' (fewest among tied players)' : ' (most among tied players)') : '') +
+          (winners.length > 1 ? '. Shared award.' : '.');
+        document.querySelector('#' + id + '-winner').replaceChildren(
+          document.createTextNode(winners.map(player => player.name).join(' & ')), reason);
+
       }
     }
 
@@ -604,19 +616,32 @@
         const key = [pick.sport, ...[pick.team, pick.opponent].sort()].join('|');
         if (!games.has(key)) games.set(key, {
           matchup: pick.opponentAtHome ? pick.team + ' @ ' + pick.opponent : pick.opponent + ' @ ' + pick.team,
-          total: 0, sides: new Map()
+          total: 0, sides: new Map(), picks: []
         });
         const game = games.get(key);
         game.total++;
+        game.picks.push(pick);
         const side = pick.team + ' ' + pick.spread;
         game.sides.set(side, (game.sides.get(side) || 0) + 1);
       }
       return [...games.values()].sort((a, b) => b.total - a.total || a.matchup.localeCompare(b.matchup)).slice(0, 3);
     }
+    function trapCoverStatus(item) {
+      const status = item.querySelector('.status');
+      const final = status?.classList.contains('final');
+      if (status && (final || item.dataset.gameState === 'in')) {
+        const winning = status.classList.contains('winning');
+        const losing = status.classList.contains('losing');
+        return { text: final ? (winning ? 'COVERED' : losing ? 'DID NOT COVER' : 'PUSH')
+          : (winning ? 'COVERING' : losing ? 'NOT COVERING' : 'ON THE SPREAD'),
+          tone: winning ? 'winning' : losing ? 'losing' : 'tied', score: status.textContent };
+      }
+      return { text: item.dataset.gameState === 'pre' ? 'NOT STARTED' : 'AWAITING SCORE UPDATE', tone: '', score: '' };
+    }
     function updateTraps() {
       const picks = [...document.querySelectorAll('.grid [data-pick]')].map(item => {
         const [team, spread] = item.dataset.pick.split('|');
-        return { team, spread, sport: item.dataset.sport, opponent: item.dataset.opponent,
+        return { team, spread, item, sport: item.dataset.sport, opponent: item.dataset.opponent,
           opponentAtHome: item.dataset.opponentAtHome === 'true' };
       });
       const rows = rankTrapGames(picks).map(game => {
@@ -628,6 +653,28 @@
         sides.textContent = [...game.sides].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
           .map(([side, count]) => side + ': ' + count + (count === 1 ? ' player' : ' players')).join(' · ');
         row.append(heading, sides);
+        const maxPicks = Math.max(...game.sides.values());
+        const popularSides = [...game.sides].filter(([, count]) => count === maxPicks);
+        if (popularSides.length > 1) {
+          const tie = document.createElement('span');
+          tie.textContent = 'Equal picks on both sides — no majority.';
+          row.append(tie);
+        }
+        for (const [side, count] of popularSides) {
+          const pick = game.picks.find(pick => pick.team + ' ' + pick.spread === side);
+          const result = trapCoverStatus(pick.item);
+          if (popularSides.length === 1) {
+            const final = pick.item.querySelector('.status')?.classList.contains('final');
+            if (final) row.classList.add(result.tone === 'winning' ? 'trap-covered' : result.tone === 'losing' ? 'trap-lost' : 'trap-push');
+            else if (pick.item.dataset.gameState === 'in') row.classList.add('trap-live');
+          }
+          const cover = document.createElement('strong');
+          cover.className = 'trap-cover ' + result.tone;
+          cover.textContent = side + ' · ' + result.text;
+          const score = document.createElement('span');
+          score.textContent = result.score;
+          row.append(cover, score);
+        }
         return row;
       });
       document.querySelector('#traps-list').replaceChildren(...rows);
@@ -640,6 +687,7 @@
         updatePreviousWeek(responses.filter(r => previousWeekDates.includes(r.date)).flatMap(({ sport, payload }) => (payload.events || []).map(event => ({ ...event, _sport: sport }))));
         const events = responses.filter(r => scoreboardDates().includes(r.date)).flatMap(({ sport, payload }) => (payload.events || []).map(event => ({ ...event, _sport: sport })));
         document.querySelectorAll('[data-pick]').forEach(item => { try { updatePick(item, events); } catch (error) { console.error('Pick update failed:', error); } });
+        updateTraps();
         try { updateLeaderboard(); updatePayroll(); updateRolloverPath(); } catch (error) { console.error('Standings update failed:', error); }
         if (message) message.textContent = `Live scores updated ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · refreshes every minute`;
       } catch {
