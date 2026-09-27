@@ -266,6 +266,16 @@
     const formatDate = date => { const parts = Object.fromEntries(new Intl.DateTimeFormat('en', { timeZone: 'America/Phoenix', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date).filter(p => p.type !== 'literal').map(p => [p.type, p.value])); return `${parts.year}${parts.month}${parts.day}`; };
     const scoreboardDates = () => ["20260924", "20260925", "20260926", "20260927", "20260928"];
     const source = (sport, date) => `https://site.api.espn.com/apis/site/v2/sports/football/${sport}/scoreboard?dates=${date}&limit=500`;
+    function livePossession(event, liveEvent) {
+      if (event.status.type.state !== 'in' || event.status.type.completed) return null;
+      const competitors = event.competitions[0].competitors;
+      const live = liveEvent?.status?.type?.state === 'in' ? liveEvent.competitions?.[0] : null;
+      const candidates = [live?.situation?.possession, event.competitions[0].situation?.possession];
+      for (const value of candidates) {
+        if (value != null && competitors.some(team => String(team.team.id || team.id) === String(value))) return String(value);
+      }
+      return null;
+    }
     function scoreTeamLabel(competitor, possession) {
       const label = document.createElement('span');
       label.className = 'score-team';
@@ -280,7 +290,7 @@
       }
       return label;
     }
-    function updatePick(item, events) {
+    function updatePick(item, events, liveEvents = []) {
       const [pick, lineText] = item.dataset.pick.split('|'), line = Number(lineText);
       const event = events.find(e => (!item.dataset.sport || e._sport === item.dataset.sport) && e.competitions?.[0]?.competitors?.some(c => abbrevs(pick).includes(c.team.abbreviation)) && (!item.dataset.opponent || e.competitions[0].competitors.some(c => abbrevs(item.dataset.opponent).includes(c.team.abbreviation))));
       item.querySelectorAll('.possession-football').forEach(marker => marker.remove());
@@ -354,7 +364,7 @@
       const status = item.querySelector('.status') || document.createElement('small');
       status.className = `status ${outcome}${completed ? ' final' : ''}`;
       const gameClock = completed ? 'FINAL' : (event.status.type.shortDetail || event.status.type.detail || 'LIVE');
-      const possession = !completed && event.status.type.state === 'in' ? event.competitions[0].situation?.possession : null;
+      const possession = livePossession(event, liveEvents.find(live => live.id === event.id && live._sport === event._sport));
       status.replaceChildren(scoreTeamLabel(chosen, possession), document.createTextNode(` ${chosen.score} - `),
         scoreTeamLabel(other, possession), document.createTextNode(` ${other.score} · ${gameClock}`));
       item.append(status);
@@ -702,7 +712,16 @@
         const responses = await Promise.all(['college-football', 'nfl'].flatMap(s => [...scoreboardDates(), ...(previousWeekReady() ? [] : previousWeekDates)].map(date => fetch(source(s, date)).then(r => r.json()).then(payload => ({ sport: s, date, payload })).catch(() => ({ sport: s, date, payload: { events: [] } })) )));
         updatePreviousWeek(responses.filter(r => previousWeekDates.includes(r.date)).flatMap(({ sport, payload }) => (payload.events || []).map(event => ({ ...event, _sport: sport }))));
         const events = responses.filter(r => scoreboardDates().includes(r.date)).flatMap(({ sport, payload }) => (payload.events || []).map(event => ({ ...event, _sport: sport })));
-        document.querySelectorAll('[data-pick]').forEach(item => { try { updatePick(item, events); } catch (error) { console.error('Pick update failed:', error); } });
+        const liveResponses = await Promise.all(['college-football', 'nfl'].map(async sport => {
+          try {
+            const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/' + sport + '/scoreboard', { cache: 'no-store', signal: AbortSignal.timeout(8000) });
+            if (!response.ok) return [];
+            const payload = await response.json();
+            return (payload.events || []).map(event => ({ ...event, _sport: sport }));
+          } catch { return []; }
+        }));
+        const liveEvents = liveResponses.flat();
+        document.querySelectorAll('[data-pick]').forEach(item => { try { updatePick(item, events, liveEvents); } catch (error) { console.error('Pick update failed:', error); } });
         updateTraps();
         try { updateLeaderboard(); updatePayroll(); updateRolloverPath(); } catch (error) { console.error('Standings update failed:', error); }
         if (message) message.textContent = `Live scores updated ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · refreshes every minute`;
