@@ -183,6 +183,7 @@
   <main>
     <header>
       <h1>LEAGUE WEEK 4</h1>
+      <p>This Week’s Pot: $2,000 · Includes $1,000 rollover</p>
     </header>
     <div class="sheet-wrap"><section class="grid">
       <article><h2>TYLERKOENIG-961</h2><ul><li class="unplayed-game" data-pick="NIU|+10.5" data-sport="college-football" data-opponent="GAST" data-opponent-at-home="true" data-game-key="GAST|NIU|college-football">NIU <small class="opponent">(@ GAST)</small><span class="spread">+10.5</span><small class="game-info">Sat 11:00am</small></li><li class="unplayed-game" data-pick="PSU|-9.5" data-sport="college-football" data-opponent="WIS" data-opponent-at-home="false" data-game-key="PSU|WIS|college-football">PSU <small class="opponent">(v WIS)</small><span class="spread">-9.5</span><small class="game-info">Sat 2:00pm</small></li><li class="unplayed-game" data-pick="LSU|-8.5" data-sport="college-football" data-opponent="TXAM" data-opponent-at-home="false" data-game-key="LSU|TXAM|college-football">LSU <small class="opponent">(v TXAM)</small><span class="spread">-8.5</span><small class="game-info">Sat 4:30pm</small></li><li class="unplayed-game" data-pick="PHI|-4.5" data-sport="nfl" data-opponent="CHI" data-opponent-at-home="true" data-game-key="CHI|PHI|nfl">PHI <small class="opponent">(@ CHI)</small><span class="spread">-4.5</span><small class="game-info">Mon 5:15pm</small></li></ul></article>
@@ -369,7 +370,7 @@
         }
         if (complete === 4) previousWeekResults[player.name] = { wins, losses, complete };
       }
-      document.querySelector('#standings-note').textContent = previousWeekReady() ? 'Season records through Week 3, plus completed Week 4 picks.' : 'Week 3 final results unavailable. Season standings and payroll are pending.';
+      document.querySelector('#standings-note').textContent = previousWeekReady() ? 'Season records through Week 3, plus completed Week 4 picks.' : 'Week 3 final results unavailable. Season standings are pending.';
     }
 
     const displayNames = {
@@ -422,15 +423,15 @@
         return `<tr><td>${rank}</td><td>${player.name}</td><td>${player.wins}-${player.losses}</td></tr>`;
       }).join('');
     }
+    const weeklyPot = 2000; // Week 4: $1,000 plus the unwon Week 3 pot.
     const startingPayroll = { JOHNREDCORN: 250, CLTULLMANN: 250, mgmccray: 250, PHILKOENIG824: 250, 'TYLERKOENIG-961': 500, DDICKEY22: 500 };
     function updatePayroll() {
-      if (!previousWeekReady()) { document.querySelector('#payroll-body').innerHTML = "<tr><td colspan='3'>Awaiting Week 3 final results</td></tr>"; return; }
-      const previousWinners = Object.keys(previousWeekResults).filter(name => previousWeekResults[name].wins === 4);
+      // Week 3 had no winners, as confirmed by the league organizer.
 
       const players = [...document.querySelectorAll('.grid article')].map(article => ({
         article,
         name: article.querySelector('h2').textContent,
-        won: (startingPayroll[article.dataset.player] || 0) + (previousWinners.includes(article.dataset.player) ? 1000 / previousWinners.length : 0)
+        won: startingPayroll[article.dataset.player] || 0
       }));
       const weeklyWinners = players.filter(({ article }) => {
         const picks = [...article.querySelectorAll('li')];
@@ -440,7 +441,7 @@
         });
       });
       if (weeklyWinners.length) {
-        const share = 1000 / weeklyWinners.length;
+        const share = weeklyPot / weeklyWinners.length;
         weeklyWinners.forEach(winner => { winner.won += share; });
       }
       players.sort((a, b) => b.won - a.won || a.name.localeCompare(b.name));
