@@ -177,6 +177,7 @@
     .trap-game strong { display: block; }
     .trap-game .trap-cover { margin-top: 6px; }
     .trap-game span { display: block; margin-top: 3px; font-weight: 400; }
+    .possession-football { display: inline-block; width: 11px; height: 7px; margin-left: 2px; vertical-align: middle; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 14'%3E%3Cpath d='M1 7Q11-5 21 7Q11 19 1 7Z' fill='black'/%3E%3Cpath d='M7 7h8M9 5v4M12 5v4M15 5v4' stroke='white' stroke-width='1'/%3E%3C/svg%3E") center / contain no-repeat; }
   </style>
 </head>
 <body>
@@ -265,9 +266,24 @@
     const formatDate = date => { const parts = Object.fromEntries(new Intl.DateTimeFormat('en', { timeZone: 'America/Phoenix', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date).filter(p => p.type !== 'literal').map(p => [p.type, p.value])); return `${parts.year}${parts.month}${parts.day}`; };
     const scoreboardDates = () => ["20260924", "20260925", "20260926", "20260927", "20260928"];
     const source = (sport, date) => `https://site.api.espn.com/apis/site/v2/sports/football/${sport}/scoreboard?dates=${date}&limit=500`;
+    function scoreTeamLabel(competitor, possession) {
+      const label = document.createElement('span');
+      label.className = 'score-team';
+      label.textContent = competitor.team.abbreviation;
+      if (possession != null && String(competitor.team.id || competitor.id) === String(possession)) {
+        const football = document.createElement('span');
+        football.className = 'possession-football';
+        football.setAttribute('role', 'img');
+        football.setAttribute('aria-label', 'Has possession');
+        football.title = 'Has possession';
+        label.append(football);
+      }
+      return label;
+    }
     function updatePick(item, events) {
       const [pick, lineText] = item.dataset.pick.split('|'), line = Number(lineText);
       const event = events.find(e => (!item.dataset.sport || e._sport === item.dataset.sport) && e.competitions?.[0]?.competitors?.some(c => abbrevs(pick).includes(c.team.abbreviation)) && (!item.dataset.opponent || e.competitions[0].competitors.some(c => abbrevs(item.dataset.opponent).includes(c.team.abbreviation))));
+      item.querySelectorAll('.possession-football').forEach(marker => marker.remove());
       if (!event) return;
       item.dataset.gameState = event.status.type.state;
       const competitors = event.competitions[0].competitors;
@@ -338,10 +354,9 @@
       const status = item.querySelector('.status') || document.createElement('small');
       status.className = `status ${outcome}${completed ? ' final' : ''}`;
       const gameClock = completed ? 'FINAL' : (event.status.type.shortDetail || event.status.type.detail || 'LIVE');
-      const chosenTeam = document.createElement('span');
-      chosenTeam.className = 'score-team';
-      chosenTeam.textContent = chosen.team.abbreviation;
-      status.replaceChildren(chosenTeam, document.createTextNode(` ${chosen.score} - ${other.team.abbreviation} ${other.score} · ${gameClock}`));
+      const possession = !completed && event.status.type.state === 'in' ? event.competitions[0].situation?.possession : null;
+      status.replaceChildren(scoreTeamLabel(chosen, possession), document.createTextNode(` ${chosen.score} - `),
+        scoreTeamLabel(other, possession), document.createTextNode(` ${other.score} · ${gameClock}`));
       item.append(status);
     }
     const startingRecords = {
