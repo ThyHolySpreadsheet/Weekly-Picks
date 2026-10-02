@@ -447,7 +447,7 @@
       document.querySelector('#payroll-body').innerHTML = players.map((player, index) => {
         if (player.won !== previousWon) rank = index + 1;
         previousWon = player.won;
-        return `<tr><td>${rank}</td><td>${player.name}</td><td>$${player.won.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</td></tr>`;
+        return `<tr><td>${rank}</td><td>${player.name}</td><td>$${player.won >= 1000 ? (player.won / 1000).toLocaleString('en-US', { maximumFractionDigits: 2 }) + 'K' : player.won.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td></tr>`;
       }).join('');
     }
     function updateRolloverPath() {
