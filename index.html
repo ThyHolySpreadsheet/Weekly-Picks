@@ -207,7 +207,7 @@
     <div class="bottom-row">
     <section class="leaderboard" aria-labelledby="leaderboard-title">
       <h2 id="leaderboard-title">Leaderboard</h2>
-      <p id="standings-note" role="status" style="font-size:10px;padding:4px 8px;margin:0">Season records through Week 7, plus completed Week 8 picks.</p>
+      <p id="standings-note" role="status" style="font-size:10px;padding:4px 8px;margin:0">Season records through Week 7, plus completed Week 8 picks. Pushes count as losses.</p>
       <table>
         <thead><tr><th>Rank</th><th>Player</th><th>Record</th></tr></thead>
         <tbody id="leaderboard-body"><tr><td>1</td><td>Ryan</td><td>18-10</td></tr><tr><td>2</td><td>Ingram</td><td>18-11</td></tr><tr><td>3</td><td>Chad</td><td>17-12</td></tr><tr><td>3</td><td>Reid</td><td>17-12</td></tr><tr><td>3</td><td>Tyler</td><td>17-12</td></tr><tr><td>6</td><td>Dan D</td><td>16-12</td></tr><tr><td>6</td><td>Tullmann</td><td>16-12</td></tr><tr><td>8</td><td>Marcus</td><td>15-13</td></tr><tr><td>9</td><td>Phil</td><td>14-14</td></tr><tr><td>10</td><td>Dave</td><td>15-16</td></tr><tr><td>11</td><td>Corey</td><td>13-15</td></tr><tr><td>12</td><td>Clayton</td><td>12-16</td></tr><tr><td>13</td><td>John</td><td>11-17</td></tr><tr><td>13</td><td>Nathan</td><td>11-17</td></tr><tr><td>15</td><td>Hayden</td><td>10-18</td></tr></tbody>
@@ -242,7 +242,7 @@
       <h2 id="traps-title">Traps of the Week</h2>
       <p id="trap-season-record" class="award-detail" aria-live="polite">Season: 11–6–0 (wins–losses–pushes) · Since Week 2</p>
       <div id="traps-list"></div>
-      <p class="award-rules">Top 3 matchups by total picks. Cover status tracks the most-picked side at its listed spread; tied sides both display. Equal matchup totals are ordered alphabetically. A trap failing to cover counts as a win; a cover counts as a loss. Pushes stay pushes. Season record counts final results since Week 2; matchups without a most-picked side are excluded. Week 1 is not included: original picks are needed.</p>
+      <p class="award-rules">Top 3 matchups by total picks. Cover status tracks the most-picked side at its listed spread; tied sides both display. Equal matchup totals are ordered alphabetically. A trap failing to cover counts as a win; a cover counts as a loss. Pushes count as losses. Season record counts final results since Week 2; matchups without a most-picked side are excluded. Week 1 is not included: original picks are needed.</p>
     </section>
     </div>
     </div>
@@ -323,7 +323,8 @@
       const score = Number(chosen.score), otherScore = Number(other.score), completed = event.status.type.completed;
       item.dataset.complete = String(completed);
       const adjusted = score + line - otherScore;
-      const outcome = adjusted > 0 ? 'winning' : adjusted < 0 ? 'losing' : 'tied';
+      item.dataset.push = String(completed && adjusted === 0);
+      const outcome = adjusted > 0 ? 'winning' : adjusted < 0 || completed ? 'losing' : 'tied';
       const label = adjusted > 0 ? 'WINNING' : adjusted < 0 ? 'LOSING' : 'TIED';
       let pickedTeam = item.querySelector('.picked-team');
       if (!pickedTeam) {
@@ -346,7 +347,7 @@
       } else if (!closeLiveGame && caution) {
         caution.remove();
       }
-      item.classList.toggle('incorrect', completed && adjusted < 0);
+      item.classList.toggle('incorrect', completed && adjusted <= 0);
       const player = item.closest('article');
       player.classList.toggle('has-loss', [...player.querySelectorAll('li.incorrect')].length > 0);
       const playerIndex = [...document.querySelectorAll('.grid article')].indexOf(player);
@@ -629,6 +630,9 @@
     function trapCoverStatus(item) {
       const status = item.querySelector('.status');
       const final = status?.classList.contains('final');
+      if (final && item.dataset.push === 'true') {
+        return { text: 'PUSH · COUNTS AS LOSS', tone: 'losing', score: status.textContent, push: true };
+      }
       if (status && (final || item.dataset.gameState === 'in')) {
         const winning = status.classList.contains('winning');
         const losing = status.classList.contains('losing');
@@ -647,7 +651,7 @@
       return [...unique.values()].reduce((record, result) => {
         if (result.result === 'loss') record.wins++;
         else if (result.result === 'win') record.losses++;
-        else if (result.result === 'push') record.pushes++;
+        else if (result.result === 'push') record.losses++;
         return record;
       }, { wins: 0, losses: 0, pushes: 0 });
     }
@@ -684,7 +688,7 @@
             if (final) {
               row.classList.add(result.tone === 'winning' ? 'trap-covered' : result.tone === 'losing' ? 'trap-lost' : 'trap-push');
               finalized.push({ week: currentLeagueWeek, matchup: game.matchup, side,
-                result: result.tone === 'winning' ? 'win' : result.tone === 'losing' ? 'loss' : 'push' });
+                result: result.push ? 'push' : result.tone === 'winning' ? 'win' : result.tone === 'losing' ? 'loss' : 'push' });
             }
             else if (pick.item.dataset.gameState === 'in') row.classList.add('trap-live');
           }
